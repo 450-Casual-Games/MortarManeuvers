@@ -10,7 +10,7 @@ var app = app || {};
 
 // the 'ship' object literal is now a property of our 'app' global variable
 app.Prisoner = function() {
-	function Prisoner(x, y, radius, color) {
+	function Prisoner(x, y, radius) {
 		//instance variables of the ship
 		this.position = new app.Vector(x,y);
 		//this.size = new app.Vector(width, height);
@@ -19,11 +19,8 @@ app.Prisoner = function() {
 		this.velocity = new app.Vector(0,0);
 		
 		//health related variables
-		this.isActive = true;
+		this.isActive = false;
 		this.isDead = false;
-		
-		//drawing variables
-		this.color = color;
 		
 		this.radius = radius;
 		
@@ -43,7 +40,18 @@ app.Prisoner = function() {
 			//if no image, draw a rectangle
 			if(!this.image) 
 			{
-				app.drawLib.drawCircle(ctx, this.color, this.position, this.radius);
+				var color;
+				
+				if(this.isActive == true)
+				{
+					color = "white";
+				}
+				else
+				{
+					color = "blue";
+				}
+				
+				app.drawLib.drawCircle(ctx, color, this.position, this.radius);
 			} 
 			else  //if image, draw that instead
 			{
@@ -92,8 +100,6 @@ app.Prisoner = function() {
 		}*/
 	};
 	
-	p.draw
-	
 	//input methods
 	
 	//move: takes delta time to affect the speed
@@ -121,6 +127,14 @@ app.Prisoner = function() {
 		// update the x and y of the player
 		this.position = this.position.sum(this.velocity);*/
 	};
+	
+	p.gainFocus = function(){
+		this.isActive = true;
+	}
+	
+	p.loseFocus=function(){
+		this.isActive = false;
+	}
 	
 	//respawn function
 	p.respawn = function() {

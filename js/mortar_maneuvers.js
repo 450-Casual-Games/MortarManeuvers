@@ -30,6 +30,7 @@ app.Mortar_Maneuvers = {
 	currentState: undefined,
 	animationID: undefined,
 	currentPrisoner: undefined,
+	currentPrisonerIndex: undefined,
 	prisoners: undefined,
 	
     // methods
@@ -49,13 +50,12 @@ app.Mortar_Maneuvers = {
 		}
 		this.currentState = this.gameState[1];
 		this.prisoners = [];
-		this.prisoners.push(new app.Prisoner(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT/2, 25, "white"));
-		this.currentPrisoner = this.prisoners[0];
+		this.prisoners.push(new app.Prisoner(this.CANVAS_WIDTH/2 - 20,this.CANVAS_HEIGHT/2 - 20, 15));
+		this.prisoners.push(new app.Prisoner(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT/2, 15));
+		this.currentPrisonerIndex = 0;
+		this.currentPrisoner = this.prisoners[this.currentPrisonerIndex];
+		this.currentPrisoner.gainFocus();
 		this.update();
-		
-		
-		
-		
 	},
 	
 	handleKeyboard: function() {
@@ -72,6 +72,31 @@ app.Mortar_Maneuvers = {
 		if (this.app.keydown[this.app.KEYBOARD.KEY_S]) {
 			this.currentPrisoner.move("down");
 		}
+		if (this.app.keydown[this.app.KEYBOARD.KEY_Q]) {
+			this.switchPrisoner(-1);
+		}
+		if (this.app.keydown[this.app.KEYBOARD.KEY_E]) {
+			this.switchPrisoner(1);
+		}
+	},
+	
+	switchPrisoner: function(indexChange){
+		this.currentPrisoner.loseFocus();
+		
+		this.currentPrisonerIndex += indexChange;
+		
+		if(this.currentPrisonerIndex == -1)
+		{
+			var newIndex = this.prisoners.length-1
+			this.currentPrisonerIndex = newIndex;
+		}
+		else if(this.currentPrisonerIndex == this.prisoners.length)
+		{
+			this.currentPrisonerIndex = 0;
+		}
+		
+		this.currentPrisoner = this.prisoners[this.currentPrisonerIndex];
+		this.currentPrisoner.gainFocus();
 	},
 	
 	
