@@ -32,6 +32,9 @@ app.Mortar_Maneuvers = {
 	currentPrisoner: undefined,
 	currentPrisonerIndex: undefined,
 	prisoners: undefined,
+	activeExplosions: undefined,
+	dt: undefined,
+	lastTime: undefined,
 	
     // methods
 	init: function() {
@@ -55,6 +58,14 @@ app.Mortar_Maneuvers = {
 		this.currentPrisonerIndex = 0;
 		this.currentPrisoner = this.prisoners[this.currentPrisonerIndex];
 		this.currentPrisoner.gainFocus();
+		
+		this.activeExplosions = [];
+		this.activeExplosions.push(new app.Explosion(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT/2, 35));
+		
+		this.dt = 0;
+		this.lastTime=0;
+		
+		
 		this.update();
 	},
 	
@@ -161,9 +172,30 @@ app.Mortar_Maneuvers = {
 	*/
 	update: function() {
 		requestAnimationFrame(this.update.bind(this));
+		
+		//calculate dt
+		this.dt = this.calculateDeltaTime();
+		
+		//update the prisoners
 		for(var i = 0; i < this.prisoners.length; i++) {
 			this.prisoners[i].update(this.ctx);
 		}
+		
+		//update the active explosions
+		for(var i = 0; i < this.activeExplosions.length; i++)
+		{
+			if(this.activeExplosions[i].getActive() == true)
+			{
+				//update the active explosion
+				this.activeExplosions[i].update(this.dt);
+			}
+			else if (this.activeExplosions[i].getActive() == false)
+			{
+				//remove element from array
+				this.activeExplosions.splice(i, 1);
+			}
+		}
+		//draw everything
 		this.draw();
 		this.handleKeyboard();
 	},
@@ -178,5 +210,20 @@ app.Mortar_Maneuvers = {
 		for(var i = 0; i < this.prisoners.length; i++) {
 			this.prisoners[i].draw(this.ctx);
 		}
+		//update the active explosions
+		for(var i = 0; i < this.activeExplosions.length; i++)
+		{
+			this.activeExplosions[i].draw(this.ctx);
+		}
+	},
+	
+	//calculate the change in time
+	calculateDeltaTime: function(){
+		var now, fps;
+		now = (+new Date);
+		fps = 1000 / (now - this.lastTime);
+		fps = app.utilities.clamp(fps, 12,60);
+		this.lastTime = now; 
+		return 1/fps;
 	}
 }
