@@ -20,5 +20,18 @@ app.drawLib = {
 		ctx.fillStyle = color;
 		ctx.fill();
 		ctx.restore();
+	},
+	
+	drawTriangle: function(ctx, color, position) {
+		ctx.save();
+		ctx.beginPath();
+		// Draw a triangle location for each corner from x:y 100,110 -> 200,10 -> 300,110 (it will return to first point)
+		ctx.moveTo(position.x, position.y);
+		ctx.lineTo(position.x + 15, position.y + 30);
+		ctx.lineTo(position.x - 15, position.y + 30);
+		ctx.closePath();
+		ctx.fillStyle = color;
+		ctx.fill();
+		ctx.restore();
 	}
 }; 

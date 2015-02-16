@@ -33,6 +33,7 @@ app.Mortar_Maneuvers = {
 	currentPrisonerIndex: undefined,
 	prisoners: undefined,
 	activeExplosions: undefined,
+	collectibles: undefined,
 	dt: undefined,
 	lastTime: undefined,
 	
@@ -61,6 +62,9 @@ app.Mortar_Maneuvers = {
 		
 		this.activeExplosions = [];
 		this.activeExplosions.push(new app.Explosion(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT/2, 35));
+		
+		this.collectibles = [];
+		this.collectibles.push(new app.Collectible(app.utilities.getRandom(15, this.CANVAS_WIDTH-15), app.utilities.getRandom(30, this.CANVAS_HEIGHT-30)));
 		
 		this.dt = 0;
 		this.lastTime=0;
@@ -214,6 +218,11 @@ app.Mortar_Maneuvers = {
 		for(var i = 0; i < this.activeExplosions.length; i++)
 		{
 			this.activeExplosions[i].draw(this.ctx);
+		}
+		
+		// Draw the collectibles
+		for(var i = 0; i < this.collectibles.length; i++) {
+			this.collectibles[i].draw(this.ctx);
 		}
 	},
 	
