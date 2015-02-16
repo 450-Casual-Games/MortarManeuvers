@@ -1,6 +1,6 @@
 // Dependencies: 
 // Description: singleton object that is a module of app
-// properties of the explosion and what it needs to know how to do go here
+// properties of the Mortar and what it needs to know how to do go here
 
 "use strict";
 
@@ -8,28 +8,26 @@
 // else create a new object literal
 var app = app || {};
 
-// the 'explosion' object literal is now a property of our 'app' global variable
-app.Explosion = function() {
-	function Explosion(x, y, radius) {
-		//instance variables of the explosion
+// the 'Mortar' object literal is now a property of our 'app' global variable
+app.Mortar = function() {
+	function Mortar(x, y, radius) {
+		//instance variables of the Mortar
 		this.position = new app.Vector(x,y);
 		
 		//health related variables
 		this.active = true;
 		
-		this.radius = 0;
-		this.maxRadius = radius;
+		this.radius = radius;
+		this.minRadius = 1;
 		
-		this.EXPLOSION_SPEED = 40;
+		this.Mortar_SPEED = 15;
 		
 		//respawn variables
 		this.respawnTimer = 0;
 		this.timerStart = 50;
 	};
 	
-	//Explosion.app = undefined;
-	
-	var p = Explosion.prototype;
+	var p = Mortar.prototype;
 	
 	p.draw = function( ctx) {	
 		//if(this.isActive == true) {
@@ -37,7 +35,7 @@ app.Explosion = function() {
 			//if no image, draw a rectangle
 			if(!this.image) 
 			{
-				var color = "red";
+				var color = "yellow";
 				
 				app.drawLib.drawCircle(ctx, color, this.position, this.radius);
 			} 
@@ -52,16 +50,14 @@ app.Explosion = function() {
 	
 	//update
 	p.update = function(dt) {	
-		//grow the explosion
-		this.radius += this.EXPLOSION_SPEED * dt;
+		//grow the Mortar
+		this.radius -= this.Mortar_SPEED * dt;
 		
-		//check if the explosion should be active
-		if(this.radius >= this.maxRadius)
+		//check if the Mortar should be active
+		if(this.radius <= this.minRadius)
 		{
 			this.active = false;
 		}
-	
-		
 	};
 	
 	//input methods
@@ -71,6 +67,12 @@ app.Explosion = function() {
 		return this.active;
 	}
 	
+	//return a new explosion at the position
+	p.makeNewExplosion = function()
+	{
+		return new app.Explosion(this.position.x,this.position.y, 35)
+	}
 	
-	return Explosion;
+	
+	return Mortar;
 }();

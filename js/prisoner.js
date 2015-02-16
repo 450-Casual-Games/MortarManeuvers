@@ -120,7 +120,6 @@ app.Prisoner = function() {
 				break;
 		}
 		
-		console.log("x: " + this.position.x + " y: " + this.position.y);
 		//multiply the velocity by friction to slow
 		/*this.velocity = this.velocity.mult(this.friction);
 		

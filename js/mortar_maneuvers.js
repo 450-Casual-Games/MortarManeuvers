@@ -33,6 +33,7 @@ app.Mortar_Maneuvers = {
 	currentPrisonerIndex: undefined,
 	prisoners: undefined,
 	activeExplosions: undefined,
+	activeMortars: undefined,
 	dt: undefined,
 	lastTime: undefined,
 	
@@ -60,7 +61,8 @@ app.Mortar_Maneuvers = {
 		this.currentPrisoner.gainFocus();
 		
 		this.activeExplosions = [];
-		this.activeExplosions.push(new app.Explosion(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT/2, 35));
+		this.activeMortars = [];
+		this.activeMortars.push(new app.Mortar(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT/2, 45));
 		
 		this.dt = 0;
 		this.lastTime=0;
@@ -181,6 +183,23 @@ app.Mortar_Maneuvers = {
 			this.prisoners[i].update(this.ctx);
 		}
 		
+		//update the active mortar fire
+		for(var i = 0; i < this.activeMortars.length; i++)
+		{
+			if(this.activeMortars[i].getActive() == true)
+			{
+				//update the active explosion
+				this.activeMortars[i].update(this.dt);
+			}
+			else if (this.activeMortars[i].getActive() == false)
+			{
+				this.activeExplosions.push(this.activeMortars[i].makeNewExplosion());
+				//remove element from array
+				this.activeMortars.splice(i, 1);
+			}
+		}
+			
+		
 		//update the active explosions
 		for(var i = 0; i < this.activeExplosions.length; i++)
 		{
@@ -206,6 +225,10 @@ app.Mortar_Maneuvers = {
 		var backgroundPos = new app.Vector(this.CANVAS_WIDTH - 50,this.CANVAS_HEIGHT - 50)
 		var backgroundSize = new app.Vector(this.CANVAS_WIDTH - 100,this.CANVAS_HEIGHT- 100)
 		app.drawLib.drawRect(this.ctx, "#22FF22", backgroundPos, backgroundSize);
+		
+		for(var i = 0; i < this.activeMortars.length; i++) {
+			this.activeMortars[i].draw(this.ctx);
+		}
 		
 		for(var i = 0; i < this.prisoners.length; i++) {
 			this.prisoners[i].draw(this.ctx);
