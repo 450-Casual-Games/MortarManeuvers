@@ -18,6 +18,8 @@ app.Mortar_Maneuvers = {
 	// CONSTANT properties
     CANVAS_WIDTH: 640, 
     CANVAS_HEIGHT: 480,
+	screenHeight: undefined,
+	screenWidth: undefined,
 	
 	//properties
     canvas: undefined,
@@ -37,6 +39,7 @@ app.Mortar_Maneuvers = {
 	collectibles: undefined,
 	dt: undefined,
 	lastTime: undefined,
+	numCollectibles: 3,
 	
     // methods
 	init: function() {
@@ -46,6 +49,9 @@ app.Mortar_Maneuvers = {
 		this.canvas.width = this.CANVAS_WIDTH;
 		this.canvas.height = this.CANVAS_HEIGHT;
 		this.ctx = this.canvas.getContext('2d');
+		
+		this.screenWidth = this.CANVAS_WIDTH - 10;
+		this.screenHeight = this.CANVAS_HEIGHT - 10;
 		
 		this.gameState = {
 			mainMenu: 0,
@@ -66,7 +72,9 @@ app.Mortar_Maneuvers = {
 		this.activeMortars.push(new app.Mortar(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT/2, 45));
 		
 		this.collectibles = [];
-		this.collectibles.push(new app.Collectible(app.utilities.getRandom(15, this.CANVAS_WIDTH-15), app.utilities.getRandom(30, this.CANVAS_HEIGHT-30)));
+		for(var i = 0; i < this.numCollectibles; i ++) {
+			this.collectibles.push(new app.Collectible(app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30)));
+		}
 		
 		this.dt = 0;
 		this.lastTime=0;
@@ -226,8 +234,8 @@ app.Mortar_Maneuvers = {
 	draw: function() {
 		this.ctx.fillStyle = "black";
 		this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
-		var backgroundPos = new app.Vector(this.CANVAS_WIDTH - 50,this.CANVAS_HEIGHT - 50)
-		var backgroundSize = new app.Vector(this.CANVAS_WIDTH - 100,this.CANVAS_HEIGHT- 100)
+		var backgroundPos = new app.Vector(this.CANVAS_WIDTH -((this.CANVAS_WIDTH-this.screenWidth)/2),this.CANVAS_HEIGHT -((this.CANVAS_HEIGHT-this.screenHeight)/2))
+		var backgroundSize = new app.Vector(this.screenWidth,this.screenHeight);
 		app.drawLib.drawRect(this.ctx, "#22FF22", backgroundPos, backgroundSize);
 		
 		for(var i = 0; i < this.activeMortars.length; i++) {
