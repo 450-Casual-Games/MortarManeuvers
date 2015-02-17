@@ -34,14 +34,21 @@ app.KEYBOARD = {
 	"KEY_Q": 81,
 };
 
-/*
+
 // Loading images.
 app.IMAGES = 
 {
-	//fighter: "images/fighter.png",
+	chainSegment: "images/ChainUISegment.png",
+	mattock: "images/PickupMattock.png",
+	prisoner1: "images/Prisoner1.png",
+	prisoner2: "images/Prisoner2.png",
+	prisoner3: "images/Prisoner3.png",
+	prisoner4: "images/Prisoner4.png",
+	reticleArrows: "images/ReticleArrows.png",
+	reticleCircle: "images/ReticleCircle.png",
 	//instructions: "images/instructions.png",
 };
-*/
+
 
 //app.keydown array to keep track of which keys are down
 //this is called a "key daemon"
@@ -78,14 +85,28 @@ window.onload = function(){
 	
 	window.addEventListener("mousedown", function(e){app.mouse.clicked = true;});
 	window.addEventListener("mouseup", function(e){app.mouse.clicked = false;});
-	/*
+	
 	//Preloads images and sounds
 	app.queue = new createjs.LoadQueue(false);
 	//app.queue.installPlugin(createjs.Sound);
-	app.queue.on("complete", function()
+	/*app.queue.on("complete", function()
 	{
 		app.Mortar_Maneuvers.init();
 	});
 	*/
+	// Loads the image files
+	app.queue.loadManifest(
+	[
+		//{id: "instructions", src: "images/instructions.png"},
+		{id: "chainSegment", src:"images/ChainUISegment.png"},
+		{id: "mattock", src: "images/PickupMattock.png"},
+		{id: "prisoner1", src: "images/Prisoner1.png"},
+		{id: "prisoner2", src: "images/Prisoner2.png"},
+		{id: "prisoner3", src: "images/Prisoner3.png"},
+		{id: "prisoner4", src: "images/Prisoner4.png"},
+		{id: "reticleArrows", src: "images/ReticleArrows.png"},
+		{id: "reticleCircle" , src: "images/ReticleCircle.png"},
+	]);
+	
 	app.Mortar_Maneuvers.init();
 }

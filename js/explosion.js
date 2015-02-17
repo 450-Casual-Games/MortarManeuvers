@@ -10,15 +10,18 @@ var app = app || {};
 
 // the 'explosion' object literal is now a property of our 'app' global variable
 app.Explosion = function() {
-	function Explosion(x, y, radius) {
+	function Explosion(x, y, size) {
 		//instance variables of the explosion
 		this.position = new app.Vector(x,y);
 		
 		//health related variables
 		this.active = true;
 		
+		this.size = new app.Vector(0, 0);
+		this.diagonalSize = Math.sqrt((this.size.x * this.size.x) + (this.size.y * this.size.y));
+		
 		this.radius = 0;
-		this.maxRadius = radius;
+		this.maxSize = size;
 		
 		this.EXPLOSION_SPEED = 40;
 		
@@ -39,7 +42,7 @@ app.Explosion = function() {
 			{
 				var color = "red";
 				
-				app.drawLib.drawCircle(ctx, color, this.position, this.radius);
+				app.drawLib.drawRect(ctx, color, this.position, this.size);
 			} 
 			else  //if image, draw that instead
 			{
@@ -53,10 +56,13 @@ app.Explosion = function() {
 	//update
 	p.update = function(dt) {	
 		//grow the explosion
-		this.radius += this.EXPLOSION_SPEED * dt;
+		this.size.x += this.EXPLOSION_SPEED * dt;
+		this.size.y += this.EXPLOSION_SPEED * dt;
+		
+		this.diagonalSize = Math.sqrt((this.size.x * this.size.x) + (this.size.y * this.size.y));
 		
 		//check if the explosion should be active
-		if(this.radius >= this.maxRadius)
+		if(this.diagonalSize >= this.maxSize)
 		{
 			this.active = false;
 		}

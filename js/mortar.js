@@ -10,21 +10,27 @@ var app = app || {};
 
 // the 'Mortar' object literal is now a property of our 'app' global variable
 app.Mortar = function() {
-	function Mortar(x, y, radius) {
+	function Mortar(x, y, size, image) {
 		//instance variables of the Mortar
 		this.position = new app.Vector(x,y);
 		
 		//health related variables
 		this.active = true;
 		
-		this.radius = radius;
-		this.minRadius = 1;
+		//size variables		
+		this.size = new app.Vector(size, size);
+		this.diagonalSize = Math.sqrt((this.size.x * this.size.x) + (this.size.y * this.size.y));
+		this.minSize = 1;
 		
-		this.Mortar_SPEED = 15;
+		this.MORTAR_SPEED = 15;
+		
+		this.image = image;
+		this.sourcePosition = new app.Vector(0,0);
+		this.sourceSize = new app.Vector(421,421);
 		
 		//respawn variables
-		this.respawnTimer = 0;
-		this.timerStart = 50;
+		/*this.respawnTimer = 0;
+		this.timerStart = 50;*/
 	};
 	
 	var p = Mortar.prototype;
@@ -33,16 +39,27 @@ app.Mortar = function() {
 		//if(this.isActive == true) {
 			
 			//if no image, draw a rectangle
-			if(!this.image) 
+			/*if(!this.image) 
 			{
-				var color = "yellow";
+				var color = "purple";
 				
-				app.drawLib.drawCircle(ctx, color, this.position, this.radius);
+				app.drawLib.drawRect(ctx, color, this.position, this.size);
 			} 
 			else  //if image, draw that instead
 			{
 				var self = this;
-				app.DrawLib.drawImage(ctx, self.image, self.sourcePosition, self.sourceSize, self.position.difference(center), self.size, self.angle);
+				app.drawLib.drawImage(ctx, self.image, self.sourcePosition, self.sourceSize, self.position.difference(center), self.size);
+			}*/
+			
+			
+			//var color = "purple";
+			
+			//app.drawLib.drawRect(ctx, color, this.position, this.size);
+			
+			if(this.image)
+			{
+				var self = this;
+				app.drawLib.drawImage(ctx, self.image, self.sourcePosition, self.sourceSize, self.position, self.size);
 			}
 		
 		//}
@@ -50,11 +67,14 @@ app.Mortar = function() {
 	
 	//update
 	p.update = function(dt) {	
-		//grow the Mortar
-		this.radius -= this.Mortar_SPEED * dt;
+		//shrink the Mortar
+		this.size.x -= this.MORTAR_SPEED * dt;
+		this.size.y -= this.MORTAR_SPEED * dt;
+		
+		this.diagonalSize = Math.sqrt((this.size.x * this.size.x) + (this.size.y * this.size.y));
 		
 		//check if the Mortar should be active
-		if(this.radius <= this.minRadius)
+		if(this.diagonalSize <= this.minSize)
 		{
 			this.active = false;
 		}
@@ -70,7 +90,7 @@ app.Mortar = function() {
 	//return a new explosion at the position
 	p.makeNewExplosion = function()
 	{
-		return new app.Explosion(this.position.x,this.position.y, 35)
+		return new app.Explosion(this.position.x,this.position.y, 75)
 	}
 	
 	

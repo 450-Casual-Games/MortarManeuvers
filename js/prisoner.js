@@ -10,7 +10,7 @@ var app = app || {};
 
 // the 'ship' object literal is now a property of our 'app' global variable
 app.Prisoner = function() {
-	function Prisoner(x, y, radius) {
+	function Prisoner(img, x, y, width, height) {
 		//instance variables of the ship
 		this.position = new app.Vector(x,y);
 		//this.size = new app.Vector(width, height);
@@ -22,12 +22,18 @@ app.Prisoner = function() {
 		this.isActive = false;
 		this.isDead = false;
 		
-		this.radius = radius;
+		this.size = new app.Vector(width, height);
+		this.radius = width - 10;
+		
+		this.image = img;
+		this.sourcePosition = new app.Vector(0,0);
+		this.sourceSize = new app.Vector(200,107);
 		
 		//respawn variables
 		this.respawnTimer = 0;
 		this.timerStart = 50;
 		this.spawnPosition = new app.Vector(x, y);
+		this.SPEED = 2;
 	};
 	
 	//Prisoner.app = undefined;
@@ -36,35 +42,18 @@ app.Prisoner = function() {
 	
 	p.draw = function(/*dt,*/ ctx) {	
 		//if(this.isActive == true) {
-			
 			//if no image, draw a rectangle
-			if(!this.image) 
+			var color;
+			
+			if(this.isActive == true)
 			{
-				var color;
-				
-				if(this.isActive == true)
-				{
-					color = "white";
-				}
-				else
-				{
-					color = "blue";
-				}
-				
+				color = "white";
 				app.drawLib.drawCircle(ctx, color, this.position, this.radius);
-			} 
-			else  //if image, draw that instead
+			}
+			if(this.image)  //if image, draw that instead
 			{
 				var self = this;
-				if(this.isHit == false)
-				{
-					app.DrawLib.drawImage(ctx, self.image, self.sourcePosition, self.sourceSize, self.position.difference(center), self.size, self.angle);
-				}
-				else
-				{
-					app.DrawLib.drawImage(ctx, self.image, self.hitSource, self.sourceSize, self.position.difference(center), self.size, self.angle);
-					self.isHit = !self.isHit;
-				}
+				app.drawLib.drawImage(ctx, self.image, self.sourcePosition, self.sourceSize, self.position, self.size);
 			}
 		
 		//}
@@ -107,16 +96,16 @@ app.Prisoner = function() {
 		var self = this;
 		switch(direction) {
 			case "up":
-				this.position.y -= 1;
+				this.position.y -= this.SPEED;
 				break;
 			case "down":
-				this.position.y += 1;
+				this.position.y += this.SPEED;
 				break;
 			case "left":
-				this.position.x -= 1;
+				this.position.x -= this.SPEED;
 				break;
 			case "right":
-				this.position.x += 1;
+				this.position.x += this.SPEED;
 				break;
 		}
 		

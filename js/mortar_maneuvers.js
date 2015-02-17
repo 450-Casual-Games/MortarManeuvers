@@ -40,6 +40,10 @@ app.Mortar_Maneuvers = {
 	dt: undefined,
 	lastTime: undefined,
 	numCollectibles: 3,
+	numPrisoners: 2,
+	mortarIMG: undefined,
+	collectableIMG: undefined,
+	prisonerIMGs: undefined,
 	
     // methods
 	init: function() {
@@ -60,20 +64,31 @@ app.Mortar_Maneuvers = {
 			pause: 3,
 		}
 		this.currentState = this.gameState[1];
+		
+		this.prisonerIMGs = [];
+		this.loadImages();
+		
+		//prisoners
 		this.prisoners = [];
-		this.prisoners.push(new app.Prisoner(this.CANVAS_WIDTH/2 - 20,this.CANVAS_HEIGHT/2 - 20, 15));
-		this.prisoners.push(new app.Prisoner(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT/2, 15));
+		
+		for(var i = 0; i < this.numPrisoners; i++)
+		{
+			var randomImageIndex = Math.floor(app.utilities.getRandom(0, 4));
+			var randomImage = this.prisonerIMGs[randomImageIndex];
+			this.prisoners.push(new app.Prisoner(randomImage,this.CANVAS_WIDTH/2 - (i * 10),this.CANVAS_HEIGHT/2 - (i * 10), 40, 20));
+		}
 		this.currentPrisonerIndex = 0;
 		this.currentPrisoner = this.prisoners[this.currentPrisonerIndex];
 		this.currentPrisoner.gainFocus();
 		
+		//explosions
 		this.activeExplosions = [];
 		this.activeMortars = [];
-		this.activeMortars.push(new app.Mortar(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT/2, 45));
+		this.activeMortars.push(new app.Mortar(app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 60, this.mortarIMG));
 		
 		this.collectibles = [];
 		for(var i = 0; i < this.numCollectibles; i ++) {
-			this.collectibles.push(new app.Collectible(app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30)));
+			this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 30));
 		}
 		
 		this.dt = 0;
@@ -81,6 +96,31 @@ app.Mortar_Maneuvers = {
 		
 		
 		this.update();
+	},
+	
+	loadImages: function(){
+		this.mortarIMG = new Image();
+		this.mortarIMG.src = this.app.IMAGES['reticleCircle'];
+		
+		this.collectableIMG = new Image();
+		this.collectableIMG.src = this.app.IMAGES['mattock'];
+		
+		debugger;
+		var p1 = new Image();
+		p1.src = this.app.IMAGES['prisoner1'];
+		this.prisonerIMGs.push(p1);
+		
+		var p2 = new Image();
+		p2.src = this.app.IMAGES['prisoner2'];
+		this.prisonerIMGs.push(p2);
+		
+		var p3 = new Image();
+		p3.src = this.app.IMAGES['prisoner3'];
+		this.prisonerIMGs.push(p3);
+		
+		var p4 = new Image();
+		p4.src = this.app.IMAGES['prisoner4'];
+		this.prisonerIMGs.push(p4);
 	},
 	
 	handleKeyboard: function() {
@@ -234,7 +274,7 @@ app.Mortar_Maneuvers = {
 	draw: function() {
 		this.ctx.fillStyle = "black";
 		this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
-		var backgroundPos = new app.Vector(this.CANVAS_WIDTH -((this.CANVAS_WIDTH-this.screenWidth)/2),this.CANVAS_HEIGHT -((this.CANVAS_HEIGHT-this.screenHeight)/2))
+		var backgroundPos = new app.Vector(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT /2);
 		var backgroundSize = new app.Vector(this.screenWidth,this.screenHeight);
 		app.drawLib.drawRect(this.ctx, "#22FF22", backgroundPos, backgroundSize);
 		

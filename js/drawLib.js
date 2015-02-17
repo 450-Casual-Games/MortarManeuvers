@@ -5,7 +5,7 @@ app.drawLib = {
 	//draw a rectangle
 	drawRect: function(ctx, color, position, size) {
 		ctx.save();
-		ctx.translate(position.x - size.x/2,position.y-size.y/2);
+		ctx.translate(position.x ,position.y);
 		ctx.fillStyle = color;
 		ctx.fillRect(-size.x/2,-size.y/2,size.x, size.y);
 		ctx.restore();
@@ -33,5 +33,17 @@ app.drawLib = {
 		ctx.fillStyle = color;
 		ctx.fill();
 		ctx.restore();
-	}
+	},
+	
+	drawImage: function(ctx, img, sourcePos, sourceSize, position, size, r) {
+		//setup the context
+		ctx.save();
+		//ctx.translate(position.x,position.y);
+		ctx.translate(position.x,position.y);
+		ctx.rotate(r * (Math.PI/180));
+		
+		//display image
+		ctx.drawImage(img, sourcePos.x, sourcePos.y, sourceSize.x, sourceSize.y, -size.x/2, -size.y/2, size.x, size.y);
+		ctx.restore();
+	},
 }; 
