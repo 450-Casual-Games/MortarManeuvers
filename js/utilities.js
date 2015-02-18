@@ -52,6 +52,7 @@ app.utilities = function(){
 	return{
 		clamp : clamp,
 		getRandom : getRandom,
+		collides : collides,
 		getRandomInt : getRandomInt,
 		getMouse : getMouse
 	};

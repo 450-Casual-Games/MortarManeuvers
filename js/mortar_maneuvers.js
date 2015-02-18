@@ -37,10 +37,14 @@ app.Mortar_Maneuvers = {
 	activeExplosions: undefined,
 	activeMortars: undefined,
 	collectibles: undefined,
+	inactiveCollectibles: undefined,
 	dt: undefined,
 	lastTime: undefined,
-	numCollectibles: 3,
+	NUM_COLLECTIBLES_LEVEL_ONE: 3,
+	numCollected: 0,
 	numPrisoners: 2,
+	NUM_START_LIVES: 5,
+	numLives: undefined,
 	mortarIMG: undefined,
 	collectableIMG: undefined,
 	prisonerIMGs: undefined,
@@ -57,6 +61,8 @@ app.Mortar_Maneuvers = {
 		this.screenWidth = this.CANVAS_WIDTH - 10;
 		this.screenHeight = this.CANVAS_HEIGHT - 10;
 		
+		this.numLives = this.NUM_START_LIVES;
+		
 		this.gameState = {
 			mainMenu: 0,
 			play: 1,
@@ -67,6 +73,59 @@ app.Mortar_Maneuvers = {
 		
 		this.prisonerIMGs = [];
 		this.loadImages();
+		
+		this.reset();
+		
+		this.dt = 0;
+		this.lastTime=0;
+		
+		
+		this.update();
+	},
+	
+	loadImages: function(){
+		this.mortarIMG = new Image();
+		this.mortarIMG.src = this.app.IMAGES['reticleCircle'];
+		
+		this.collectableIMG = new Image();
+		this.collectableIMG.src = this.app.IMAGES['mattock'];
+		
+		var p1 = new Image();
+		p1.src = this.app.IMAGES['prisoner1'];
+		this.prisonerIMGs.push(p1);
+		
+		var p2 = new Image();
+		p2.src = this.app.IMAGES['prisoner2'];
+		this.prisonerIMGs.push(p2);
+		
+		var p3 = new Image();
+		p3.src = this.app.IMAGES['prisoner3'];
+		this.prisonerIMGs.push(p3);
+		
+		var p4 = new Image();
+		p4.src = this.app.IMAGES['prisoner4'];
+		this.prisonerIMGs.push(p4);
+	},
+	
+	collect: function(index) {
+		this.collectibles.splice(index, 1);
+		this.numCollected++;
+		console.log("You collected an item, number collected: " + this.numCollected);
+	},
+	
+	kill: function(index) {
+		if(this.numLives >=0) {
+			this.numLives--;
+			this.reset();
+		} else {
+			this.currentState = this.gameState[2];
+			this.numLives = this.NUM_START_LIVES;
+		}
+	},
+	
+	reset: function() {
+		this.numCollected = 0;
+		// mortar cooldown time reset
 		
 		//prisoners
 		this.prisoners = [];
@@ -86,41 +145,62 @@ app.Mortar_Maneuvers = {
 		this.activeMortars = [];
 		this.activeMortars.push(new app.Mortar(app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 60, this.mortarIMG));
 		
+		// Collectibles
 		this.collectibles = [];
-		for(var i = 0; i < this.numCollectibles; i ++) {
+		for(var i = 0; i < this.NUM_COLLECTIBLES_LEVEL_ONE; i ++) {
 			this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 30));
 		}
+		this.inactiveCollectibles = [];
 		
-		this.dt = 0;
-		this.lastTime=0;
-		
-		
-		this.update();
 	},
 	
-	loadImages: function(){
-		this.mortarIMG = new Image();
-		this.mortarIMG.src = this.app.IMAGES['reticleCircle'];
+	checkForCollisions: function() {
+		//var self = this;
 		
-		this.collectableIMG = new Image();
-		this.collectableIMG.src = this.app.IMAGES['mattock'];
+		for(var i = 0; i < this.prisoners.length; i++) {
+			for(var j = 0; j < this.collectibles.length; j++) {
+				if(app.utilities.collides(this.prisoners[i], this.collectibles[j])) {
+					//collision stuff
+					this.collect(j);
+				}
+			}
+			for(var k = 0; k < this.activeExplosions.length; k++) {
+				if(app.utilities.collides(this.prisoners[i], this.activeExplosions[k])) {
+					//collision stuff
+					this.kill(k);
+				}
+			}
+		}
+		/*
+		//Player 1 vs Player 2 bullets
+		if(this.player1.isActive == true)
+		{
+			self.player2.bullets.forEach(function(bullet)
+			{
+				if(self.collides(bullet, self.player1))
+				{
+					//collision stuff
+					bullet.collisionResolution();
+					self.player1.bulletHit();
+				}
+			});
+		}
 		
-		debugger;
-		var p1 = new Image();
-		p1.src = this.app.IMAGES['prisoner1'];
-		this.prisonerIMGs.push(p1);
-		
-		var p2 = new Image();
-		p2.src = this.app.IMAGES['prisoner2'];
-		this.prisonerIMGs.push(p2);
-		
-		var p3 = new Image();
-		p3.src = this.app.IMAGES['prisoner3'];
-		this.prisonerIMGs.push(p3);
-		
-		var p4 = new Image();
-		p4.src = this.app.IMAGES['prisoner4'];
-		this.prisonerIMGs.push(p4);
+		//Player 2 vs Player 1 bullets
+		if(this.player2.isActive == true)
+		{
+			self.player1.bullets.forEach(function(bullet)
+			{
+				if(self.collides(bullet, self.player2))
+				{
+					//collision stuff
+					bullet.collisionResolution();
+					self.player2.bulletHit();
+				}
+			
+			});
+		}
+		*/
 	},
 	
 	handleKeyboard: function() {
@@ -224,8 +304,17 @@ app.Mortar_Maneuvers = {
 		}
 	},
 	*/
+	
+	//return a new explosion at the position
+	makeNewExplosion: function(position) {
+		
+		return new app.Explosion(position.x, position.y, 75)
+	},
+	
 	update: function() {
 		requestAnimationFrame(this.update.bind(this));
+		
+		this.checkForCollisions();
 		
 		//calculate dt
 		this.dt = this.calculateDeltaTime();
@@ -245,7 +334,7 @@ app.Mortar_Maneuvers = {
 			}
 			else if (this.activeMortars[i].getActive() == false)
 			{
-				this.activeExplosions.push(this.activeMortars[i].makeNewExplosion());
+				this.activeExplosions.push(this.makeNewExplosion(this.activeMortars[i].position));
 				//remove element from array
 				this.activeMortars.splice(i, 1);
 			}

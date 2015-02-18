@@ -87,12 +87,6 @@ app.Mortar = function() {
 		return this.active;
 	}
 	
-	//return a new explosion at the position
-	p.makeNewExplosion = function()
-	{
-		return new app.Explosion(this.position.x,this.position.y, 75)
-	}
-	
 	
 	return Mortar;
 }();
