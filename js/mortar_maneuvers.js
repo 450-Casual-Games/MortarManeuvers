@@ -175,6 +175,18 @@ app.Mortar_Maneuvers = {
 				}
 			}
 		}
+		
+		for(var i = 0; i < this.activeExplosions.length; i++) {
+			for(var j = 0; j < this.collectibles.length; j++) {
+				if(app.utilities.collides(this.activeExplosions[i], this.collectibles[j])) {
+					//collision stuff
+					this.activeExplosions.push(this.makeNewExplosion(this.collectibles[j].position));
+					this.collectibles.splice(j, 1);
+					this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 30));
+				}
+			}
+		}
+		
 		/*
 		//Player 1 vs Player 2 bullets
 		if(this.player1.isActive == true)
