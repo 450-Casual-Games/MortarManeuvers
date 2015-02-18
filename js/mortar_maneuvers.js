@@ -49,7 +49,7 @@ app.Mortar_Maneuvers = {
 	mortarIMG: undefined,
 	collectableIMG: undefined,
 	prisonerIMGs: undefined,
-	maxCooldown: 3,
+	maxCooldown: 1,
 	currentCooldown: undefined,
 	
     // methods
@@ -114,7 +114,7 @@ app.Mortar_Maneuvers = {
 	collect: function(index) {
 		this.collectibles.splice(index, 1);
 		this.numCollected++;
-		console.log("You collected an item, number collected: " + this.numCollected);
+		console.log("You collected an item, number collected: " + this.numCollected + " out of " + this.NUM_COLLECTIBLES_LEVEL_ONE);
 	},
 	
 	kill: function(index) {
@@ -388,7 +388,7 @@ app.Mortar_Maneuvers = {
 		this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
 		var backgroundPos = new app.Vector(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT /2);
 		var backgroundSize = new app.Vector(this.screenWidth,this.screenHeight);
-		app.drawLib.drawRect(this.ctx, "#22FF22", backgroundPos, backgroundSize);
+		app.drawLib.drawRect(this.ctx, "#005200", backgroundPos, backgroundSize);
 		
 		for(var i = 0; i < this.activeMortars.length; i++) {
 			this.activeMortars[i].draw(this.ctx);
