@@ -18,9 +18,9 @@ app.Mortar_Maneuvers = {
 	// CONSTANT properties
     CANVAS_WIDTH: 640, 
     CANVAS_HEIGHT: 480,
-	screenHeight: undefined,
-	screenWidth: undefined,
-	
+	NUM_COLLECTIBLES_LEVEL_ONE: 3,
+	NUM_START_LIVES: 5,
+		
 	//properties
     canvas: undefined,
     ctx: undefined,
@@ -31,6 +31,8 @@ app.Mortar_Maneuvers = {
 	gameState: undefined,
 	currentState: undefined,
 	animationID: undefined,
+	screenHeight: undefined,
+	screenWidth: undefined,
 	currentPrisoner: undefined,
 	currentPrisonerIndex: undefined,
 	prisoners: undefined,
@@ -40,14 +42,15 @@ app.Mortar_Maneuvers = {
 	inactiveCollectibles: undefined,
 	dt: undefined,
 	lastTime: undefined,
-	NUM_COLLECTIBLES_LEVEL_ONE: 3,
 	numCollected: 0,
 	numPrisoners: 2,
-	NUM_START_LIVES: 5,
+
 	numLives: undefined,
 	mortarIMG: undefined,
 	collectableIMG: undefined,
 	prisonerIMGs: undefined,
+	maxCooldown: 3,
+	currentCooldown: undefined,
 	
     // methods
 	init: function() {
@@ -61,6 +64,7 @@ app.Mortar_Maneuvers = {
 		this.screenWidth = this.CANVAS_WIDTH - 10;
 		this.screenHeight = this.CANVAS_HEIGHT - 10;
 		
+		this.currentCooldown = this.maxCooldown;
 		this.numLives = this.NUM_START_LIVES;
 		
 		this.gameState = {
@@ -143,7 +147,7 @@ app.Mortar_Maneuvers = {
 		//explosions
 		this.activeExplosions = [];
 		this.activeMortars = [];
-		this.activeMortars.push(new app.Mortar(app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 60, this.mortarIMG));
+		
 		
 		// Collectibles
 		this.collectibles = [];
@@ -318,6 +322,13 @@ app.Mortar_Maneuvers = {
 		
 		//calculate dt
 		this.dt = this.calculateDeltaTime();
+		
+		// Fire mortars
+		this.currentCooldown -= this.dt;
+		if(this.currentCooldown <= 0) {
+			this.activeMortars.push(new app.Mortar(app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 60, this.mortarIMG));
+			this.currentCooldown = this.maxCooldown;
+		}
 		
 		//update the prisoners
 		for(var i = 0; i < this.prisoners.length; i++) {
