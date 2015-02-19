@@ -10,13 +10,24 @@ var app = app || {};
 
 // the 'ship' object literal is now a property of our 'app' global variable
 app.Prisoner = function() {
-	function Prisoner(img, x, y, width, height) {
-		//instance variables of the ship
+	function Prisoner(img, x, y, width, height, angle) {
+		//instance variables of the prisoner
 		this.position = new app.Vector(x,y);
-		//this.size = new app.Vector(width, height);
+		this.size = new app.Vector(width, height);
+		this.angle = angle;
+		this.angleChange = 4;
 		
 		//movement related variables
+		this.isAccelerating = false;
+		this.accelerationValue = 0.2;
+		this.accelerationLimit = 0.1;
+		this.acceleration = new app.Vector(0,0);
 		this.velocity = new app.Vector(0,0);
+		this.maxSpeed = 5;
+		this.friction = .99;
+		
+		this.rotationAsRadians = (this.angle - 90) * (Math.PI/180);
+		this.forward = new app.Vector(Math.cos(this.rotationAsRadians),Math.sin(this.rotationAsRadians));
 		
 		//health related variables
 		this.isActive = false;
@@ -33,14 +44,18 @@ app.Prisoner = function() {
 		this.respawnTimer = 0;
 		this.timerStart = 50;
 		this.spawnPosition = new app.Vector(x, y);
+		this.spawnAngle = angle;
 		this.SPEED = 2;
+
+		//image related variables
+		this.sourceSize = new app.Vector(32, 32);
 	};
 	
 	//Prisoner.app = undefined;
 	
 	var p = Prisoner.prototype;
 	
-	p.draw = function(/*dt,*/ ctx) {	
+	p.draw = function(dt, ctx) {	
 		//if(this.isActive == true) {
 			//if no image, draw a rectangle
 			var color;
@@ -59,14 +74,33 @@ app.Prisoner = function() {
 		//}
 	};
 	
-	//update
-	p.update = function() {	
-		//physics movement
-		//this.move();
+	//input methods
+	//rotate: take a string representing the key input for rotation
+	p.rotate = function(direction)
+	{
+		if(this.isActive)
+		{
+			switch(direction)
+			{
+				case "left":
+					this.angle -= this.angleChange;
+					break;
+				case "right":
+					this.angle += this.angleChange;
+					break;
+			}
+		}
+	};
 	
-		//change cooldown
-		//this.cooldown --;
-		
+	//update
+	p.update = function(dt) {	
+		// Cyber Fighters
+		//update angle in radians
+		this.rotationAsRadians = (this.angle - 90) * (Math.PI/180);
+		this.calculateForward();
+	
+		//physics movement
+		this.move(dt);
 		//respawn
 		var self = this;
 		/*if(this.health <= 0) 
@@ -109,11 +143,28 @@ app.Prisoner = function() {
 				break;
 		}
 		
+
+
+		// Cyber Fighters
+		var forwardAccel = this.forward.mult(this.accelerationValue)
+		
+		var self = this;
+		if(this.isAccelerating)
+		{
+			this.soundHandler.shipEngineSoundPlay();
+			this.acceleration = new app.Vector(forwardAccel.x, forwardAccel.y);
+			this.acceleration.limit(this.accelerationLimit);
+			
+			this.velocity = this.velocity.sum(this.acceleration);
+			this.velocity.limit(this.maxSpeed);
+		}
+		
 		//multiply the velocity by friction to slow
-		/*this.velocity = this.velocity.mult(this.friction);
+		this.velocity = this.velocity.mult(this.friction);
 		
 		// update the x and y of the player
-		this.position = this.position.sum(this.velocity);*/
+		this.position = this.position.sum(this.velocity);
+
 	};
 	
 	p.gainFocus = function(){
@@ -156,7 +207,13 @@ app.Prisoner = function() {
 		this.isActive = true;
 		this.isDead = false;
 	};
-
+	
+	//calculate the forward vector
+	p.calculateForward = function()
+	{
+		this.forward.x = Math.cos(this.rotationAsRadians);
+		this.forward.y = Math.sin(this.rotationAsRadians);
+	};
 	
 	
 	return Prisoner;
