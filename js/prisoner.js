@@ -58,12 +58,9 @@ app.Prisoner = function() {
 	p.draw = function(ctx) {	
 		//if(this.isActive == true) {
 			//if no image, draw a rectangle
-			var color;
-			
-			if(this.isActive == true)
+			if(this.isActive)
 			{
-				color = "white";
-				app.drawLib.drawCircle(ctx, color, this.position, this.radius);
+				app.drawLib.drawCircle(ctx, "white", this.position, this.radius);
 			}
 			if(this.image)  //if image, draw that instead
 			{

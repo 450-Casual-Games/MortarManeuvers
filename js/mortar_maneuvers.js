@@ -242,7 +242,7 @@ app.Mortar_Maneuvers = {
 	//return a new explosion at the position
 	makeNewExplosion: function(position) {
 		
-		return new app.Explosion(position.x, position.y, 75)
+		return new app.Explosion(position.x, position.y, 12 ,75)
 	},
 	
 	update: function() {
@@ -321,11 +321,13 @@ app.Mortar_Maneuvers = {
 		
 		//draw prisoners
 		for(var i = 0; i < this.prisoners.length; i++) {
+			//draw the chain from the prisoner to the next one
 			if(i < this.prisoners.length - 1)
 			{
 				//drawLine(ctx, color, weight, pos1, pos2)
 				app.drawLib.drawLine(this.ctx, "black", 3, this.prisoners[i].position, this.prisoners[i+1].position);
 			}
+			
 			this.prisoners[i].draw(this.ctx);
 		}
 		

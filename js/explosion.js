@@ -10,18 +10,18 @@ var app = app || {};
 
 // the 'explosion' object literal is now a property of our 'app' global variable
 app.Explosion = function() {
-	function Explosion(x, y, size) {
+	function Explosion(x, y, size, maxSize) {
 		//instance variables of the explosion
 		this.position = new app.Vector(x,y);
 		
 		//health related variables
 		this.active = true;
 		
-		this.size = new app.Vector(0, 0);
+		this.size = new app.Vector(size, size);
 		this.diagonalSize = Math.sqrt((this.size.x * this.size.x) + (this.size.y * this.size.y));
 		
 		this.radius = 0;
-		this.maxSize = size;
+		this.maxSize = maxSize;
 		
 		this.EXPLOSION_SPEED = 40;
 		
