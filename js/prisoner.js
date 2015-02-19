@@ -10,21 +10,21 @@ var app = app || {};
 
 // the 'ship' object literal is now a property of our 'app' global variable
 app.Prisoner = function() {
-	function Prisoner(img, x, y, width, height, angle) {
+	function Prisoner(img, x, y, width, height, chainLength, angle) {
 		//instance variables of the prisoner
 		this.position = new app.Vector(x,y);
-		this.size = new app.Vector(width, height);
 		this.angle = angle;
-		this.angleChange = 4;
+		this.angleChange = 3;
 		
 		//movement related variables
 		this.isAccelerating = false;
 		this.accelerationValue = 0.2;
-		this.accelerationLimit = 0.1;
+		this.accelerationLimit = 0.05;
 		this.acceleration = new app.Vector(0,0);
 		this.velocity = new app.Vector(0,0);
 		this.maxSpeed = 5;
-		this.friction = .99;
+		//this.friction = .99;
+		this.chainLength = chainLength;
 		
 		this.rotationAsRadians = (this.angle - 90) * (Math.PI/180);
 		this.forward = new app.Vector(Math.cos(this.rotationAsRadians),Math.sin(this.rotationAsRadians));
@@ -36,6 +36,7 @@ app.Prisoner = function() {
 		this.size = new app.Vector(width, height);
 		this.radius = width - 10;
 		
+		//image related variables
 		this.image = img;
 		this.sourcePosition = new app.Vector(0,0);
 		this.sourceSize = new app.Vector(200,107);
@@ -47,15 +48,14 @@ app.Prisoner = function() {
 		this.spawnAngle = angle;
 		this.SPEED = 2;
 
-		//image related variables
-		this.sourceSize = new app.Vector(32, 32);
+		
 	};
 	
 	//Prisoner.app = undefined;
 	
 	var p = Prisoner.prototype;
 	
-	p.draw = function(dt, ctx) {	
+	p.draw = function(ctx) {	
 		//if(this.isActive == true) {
 			//if no image, draw a rectangle
 			var color;
@@ -68,7 +68,7 @@ app.Prisoner = function() {
 			if(this.image)  //if image, draw that instead
 			{
 				var self = this;
-				app.drawLib.drawImage(ctx, self.image, self.sourcePosition, self.sourceSize, self.position, self.size);
+				app.drawLib.drawImage(ctx, self.image, self.sourcePosition, self.sourceSize, self.position, self.size, self.angle);
 			}
 		
 		//}
@@ -93,14 +93,18 @@ app.Prisoner = function() {
 	};
 	
 	//update
-	p.update = function(dt) {	
+	p.update = function(dt, otherPrisoner) {	
 		// Cyber Fighters
 		//update angle in radians
 		this.rotationAsRadians = (this.angle - 90) * (Math.PI/180);
 		this.calculateForward();
 	
 		//physics movement
-		this.move(dt);
+		//this.move(dt);
+		if(this.isActive)
+		{
+			this.move(dt, otherPrisoner);
+		}
 		//respawn
 		var self = this;
 		/*if(this.health <= 0) 
@@ -142,38 +146,57 @@ app.Prisoner = function() {
 				this.position.x += this.SPEED;
 				break;
 		}
-		
-
-
+	};
+	
+	p.move = function(dt, otherPrisoner)
+	{
 		// Cyber Fighters
 		var forwardAccel = this.forward.mult(this.accelerationValue)
 		
 		var self = this;
 		if(this.isAccelerating)
 		{
-			this.soundHandler.shipEngineSoundPlay();
+			//this.soundHandler.shipEngineSoundPlay();
 			this.acceleration = new app.Vector(forwardAccel.x, forwardAccel.y);
 			this.acceleration.limit(this.accelerationLimit);
 			
-			this.velocity = this.velocity.sum(this.acceleration);
-			this.velocity.limit(this.maxSpeed);
+			var tempVelocity = this.velocity.sum(this.acceleration);
+			
+			tempVelocity.limit(this.maxSpeed);
+			
+			//this.velocity = 
+			//this.velocity.limit(this.maxSpeed);
+			
+			var futurePosition = this.position.sum(tempVelocity);
+			
+			if(futurePosition.distance(otherPrisoner.position) < this.chainLength)
+			{
+				this.velocity = tempVelocity;
+			}
+			else
+			{
+				this.velocity = new app.Vector(0,0);
+			}
+		}
+		else
+		{
+			this.velocity = new app.Vector(0,0);
 		}
 		
 		//multiply the velocity by friction to slow
-		this.velocity = this.velocity.mult(this.friction);
+		//this.velocity = this.velocity.mult(this.friction);
 		
 		// update the x and y of the player
 		this.position = this.position.sum(this.velocity);
-
-	};
+	}
 	
 	p.gainFocus = function(){
 		this.isActive = true;
-	}
+	};
 	
 	p.loseFocus=function(){
 		this.isActive = false;
-	}
+	};
 	
 	//respawn function
 	p.respawn = function() {

@@ -20,7 +20,7 @@ app.Mortar = function() {
 		//size variables		
 		this.size = new app.Vector(size, size);
 		this.diagonalSize = Math.sqrt((this.size.x * this.size.x) + (this.size.y * this.size.y));
-		this.minSize = 1;
+		this.minSize = 30;
 		
 		this.MORTAR_SPEED = 15;
 		

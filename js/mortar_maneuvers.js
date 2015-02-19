@@ -87,6 +87,7 @@ app.Mortar_Maneuvers = {
 		this.update();
 	},
 	
+	//load images
 	loadImages: function(){
 		this.mortarIMG = new Image();
 		this.mortarIMG.src = this.app.IMAGES['reticleCircle'];
@@ -111,12 +112,14 @@ app.Mortar_Maneuvers = {
 		this.prisonerIMGs.push(p4);
 	},
 	
+	//handle player-collectable collision
 	collect: function(index) {
 		this.collectibles.splice(index, 1);
 		this.numCollected++;
 		console.log("You collected an item, number collected: " + this.numCollected + " out of " + this.NUM_COLLECTIBLES_LEVEL_ONE);
 	},
 	
+	//handle player-explosion collision
 	kill: function(index) {
 		if(this.numLives >=0) {
 			this.numLives--;
@@ -138,8 +141,11 @@ app.Mortar_Maneuvers = {
 		{
 			var randomImageIndex = Math.floor(app.utilities.getRandom(0, 4));
 			var randomImage = this.prisonerIMGs[randomImageIndex];
-			this.prisoners.push(new app.Prisoner(randomImage,this.CANVAS_WIDTH/2 - (i * 10),this.CANVAS_HEIGHT/2 - (i * 10), 40, 20));
+			//Prisoner(img, x, y, width, height, chainLength, angle)
+			this.prisoners.push(new app.Prisoner(randomImage,this.CANVAS_WIDTH/2 - (i * 10),this.CANVAS_HEIGHT/2 - (i * 10), 40, 20, 100, 0));
 		}
+		
+		//set focus on the first prisoner
 		this.currentPrisonerIndex = 0;
 		this.currentPrisoner = this.prisoners[this.currentPrisonerIndex];
 		this.currentPrisoner.gainFocus();
@@ -186,52 +192,24 @@ app.Mortar_Maneuvers = {
 				}
 			}
 		}
-		
-		/*
-		//Player 1 vs Player 2 bullets
-		if(this.player1.isActive == true)
-		{
-			self.player2.bullets.forEach(function(bullet)
-			{
-				if(self.collides(bullet, self.player1))
-				{
-					//collision stuff
-					bullet.collisionResolution();
-					self.player1.bulletHit();
-				}
-			});
-		}
-		
-		//Player 2 vs Player 1 bullets
-		if(this.player2.isActive == true)
-		{
-			self.player1.bullets.forEach(function(bullet)
-			{
-				if(self.collides(bullet, self.player2))
-				{
-					//collision stuff
-					bullet.collisionResolution();
-					self.player2.bulletHit();
-				}
-			
-			});
-		}
-		*/
 	},
 	
+	//handle player input
 	handleKeyboard: function() {
 		//Player input
-		if (this.app.keydown[this.app.KEYBOARD.KEY_W]) {
-			this.currentPrisoner.move("up");
+		if (this.app.keydown[this.app.KEYBOARD.KEY_W] == true) {
+			//this.currentPrisoner.move("up");
+			this.currentPrisoner.isAccelerating = true;
+		}
+		else if(this.app.keydown[this.app.KEYBOARD.KEY_W] == false)
+		{
+			this.currentPrisoner.isAccelerating = false;
 		}
 		if (this.app.keydown[this.app.KEYBOARD.KEY_A]) {
-			this.currentPrisoner.move("left");
+			this.currentPrisoner.rotate("left", this.dt);
 		}
 		if (this.app.keydown[this.app.KEYBOARD.KEY_D]) {
-			this.currentPrisoner.move("right");
-		}
-		if (this.app.keydown[this.app.KEYBOARD.KEY_S]) {
-			this.currentPrisoner.move("down");
+			this.currentPrisoner.rotate("right", this.dt);
 		}
 		if (this.app.keydown[this.app.KEYBOARD.KEY_Q]) {
 			this.switchPrisoner(-1);
@@ -241,6 +219,7 @@ app.Mortar_Maneuvers = {
 		}
 	},
 	
+	//change which prisoner has focus
 	switchPrisoner: function(indexChange){
 		this.currentPrisoner.loseFocus();
 		
@@ -260,8 +239,124 @@ app.Mortar_Maneuvers = {
 		this.currentPrisoner.gainFocus();
 	},
 	
+	//return a new explosion at the position
+	makeNewExplosion: function(position) {
+		
+		return new app.Explosion(position.x, position.y, 75)
+	},
 	
-	/*
+	update: function() {
+		requestAnimationFrame(this.update.bind(this));
+		
+		this.checkForCollisions();
+		
+		//calculate dt
+		this.dt = this.calculateDeltaTime();
+		
+		// Fire mortars
+		this.currentCooldown -= this.dt;
+		if(this.currentCooldown <= 0) {
+			this.activeMortars.push(new app.Mortar(app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 60, this.mortarIMG));
+			this.currentCooldown = this.maxCooldown;
+		}
+		
+		//update the prisoners
+		for(var i = 0; i < this.prisoners.length; i++) {
+			var otherPrisoner;
+			
+			if(i == 0)
+			{
+				otherPrisoner = this.prisoners[1];
+			}
+			else if(i == 1)
+			{
+				otherPrisoner = this.prisoners[0];
+			}
+			this.prisoners[i].update(this.ctx, otherPrisoner);
+		}
+		
+		//update the active mortar fire
+		for(var i = 0; i < this.activeMortars.length; i++)
+		{
+			if(this.activeMortars[i].getActive() == true)
+			{
+				//update the active explosion
+				this.activeMortars[i].update(this.dt);
+			}
+			else if (this.activeMortars[i].getActive() == false)
+			{
+				this.activeExplosions.push(this.makeNewExplosion(this.activeMortars[i].position));
+				//remove element from array
+				this.activeMortars.splice(i, 1);
+			}
+		}
+			
+		
+		//update the active explosions
+		for(var i = 0; i < this.activeExplosions.length; i++)
+		{
+			if(this.activeExplosions[i].getActive() == true)
+			{
+				//update the active explosion
+				this.activeExplosions[i].update(this.dt);
+			}
+			else if (this.activeExplosions[i].getActive() == false)
+			{
+				//remove element from array
+				this.activeExplosions.splice(i, 1);
+			}
+		}
+		//draw everything
+		this.draw();
+		this.handleKeyboard();
+	},
+	
+	//draw the game
+	draw: function() {
+		this.ctx.fillStyle = "black";
+		this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+		var backgroundPos = new app.Vector(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT /2);
+		var backgroundSize = new app.Vector(this.screenWidth,this.screenHeight);
+		app.drawLib.drawRect(this.ctx, "#005200", backgroundPos, backgroundSize);
+		
+		//draw prisoners
+		for(var i = 0; i < this.prisoners.length; i++) {
+			if(i < this.prisoners.length - 1)
+			{
+				//drawLine(ctx, color, weight, pos1, pos2)
+				app.drawLib.drawLine(this.ctx, "black", 3, this.prisoners[i].position, this.prisoners[i+1].position);
+			}
+			this.prisoners[i].draw(this.ctx);
+		}
+		
+		//draw mortars
+		for(var i = 0; i < this.activeMortars.length; i++) {
+			this.activeMortars[i].draw(this.ctx);
+		}
+		
+		//draw the active explosions
+		for(var i = 0; i < this.activeExplosions.length; i++)
+		{
+			this.activeExplosions[i].draw(this.ctx);
+		}
+		
+		// Draw the collectibles
+		for(var i = 0; i < this.collectibles.length; i++) {
+			this.collectibles[i].draw(this.ctx);
+		}
+	},
+	
+	//calculate the change in time
+	calculateDeltaTime: function(){
+		var now, fps;
+		now = (+new Date);
+		fps = 1000 / (now - this.lastTime);
+		fps = app.utilities.clamp(fps, 12,60);
+		this.lastTime = now; 
+		return 1/fps;
+	}
+	
+		/*
 	handleKeyboard: function() {
 		switch(this.currentState) {
 			case this.gameState.play:
@@ -320,102 +415,4 @@ app.Mortar_Maneuvers = {
 		}
 	},
 	*/
-	
-	//return a new explosion at the position
-	makeNewExplosion: function(position) {
-		
-		return new app.Explosion(position.x, position.y, 75)
-	},
-	
-	update: function() {
-		requestAnimationFrame(this.update.bind(this));
-		
-		this.checkForCollisions();
-		
-		//calculate dt
-		this.dt = this.calculateDeltaTime();
-		
-		// Fire mortars
-		this.currentCooldown -= this.dt;
-		if(this.currentCooldown <= 0) {
-			this.activeMortars.push(new app.Mortar(app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 60, this.mortarIMG));
-			this.currentCooldown = this.maxCooldown;
-		}
-		
-		//update the prisoners
-		for(var i = 0; i < this.prisoners.length; i++) {
-			this.prisoners[i].update(this.ctx);
-		}
-		
-		//update the active mortar fire
-		for(var i = 0; i < this.activeMortars.length; i++)
-		{
-			if(this.activeMortars[i].getActive() == true)
-			{
-				//update the active explosion
-				this.activeMortars[i].update(this.dt);
-			}
-			else if (this.activeMortars[i].getActive() == false)
-			{
-				this.activeExplosions.push(this.makeNewExplosion(this.activeMortars[i].position));
-				//remove element from array
-				this.activeMortars.splice(i, 1);
-			}
-		}
-			
-		
-		//update the active explosions
-		for(var i = 0; i < this.activeExplosions.length; i++)
-		{
-			if(this.activeExplosions[i].getActive() == true)
-			{
-				//update the active explosion
-				this.activeExplosions[i].update(this.dt);
-			}
-			else if (this.activeExplosions[i].getActive() == false)
-			{
-				//remove element from array
-				this.activeExplosions.splice(i, 1);
-			}
-		}
-		//draw everything
-		this.draw();
-		this.handleKeyboard();
-	},
-	
-	draw: function() {
-		this.ctx.fillStyle = "black";
-		this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
-		var backgroundPos = new app.Vector(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT /2);
-		var backgroundSize = new app.Vector(this.screenWidth,this.screenHeight);
-		app.drawLib.drawRect(this.ctx, "#005200", backgroundPos, backgroundSize);
-		
-		for(var i = 0; i < this.activeMortars.length; i++) {
-			this.activeMortars[i].draw(this.ctx);
-		}
-		
-		for(var i = 0; i < this.prisoners.length; i++) {
-			this.prisoners[i].draw(this.ctx);
-		}
-		//update the active explosions
-		for(var i = 0; i < this.activeExplosions.length; i++)
-		{
-			this.activeExplosions[i].draw(this.ctx);
-		}
-		
-		// Draw the collectibles
-		for(var i = 0; i < this.collectibles.length; i++) {
-			this.collectibles[i].draw(this.ctx);
-		}
-	},
-	
-	//calculate the change in time
-	calculateDeltaTime: function(){
-		var now, fps;
-		now = (+new Date);
-		fps = 1000 / (now - this.lastTime);
-		fps = app.utilities.clamp(fps, 12,60);
-		this.lastTime = now; 
-		return 1/fps;
-	}
 }

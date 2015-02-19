@@ -2,6 +2,19 @@
 var app = app || {};
 
 app.drawLib = {
+	//draw a line
+	drawLine: function(ctx, color, weight, pos1, pos2){
+		ctx.save();
+		ctx.strokeStyle = color;
+		ctx.lineWidth = weight;
+		ctx.beginPath();
+		ctx.moveTo(pos1.x, pos1.y);
+		ctx.lineTo(pos2.x,pos2.y);
+		ctx.stroke();
+		ctx.restore();
+		
+	},
+	
 	//draw a rectangle
 	drawRect: function(ctx, color, position, size) {
 		ctx.save();
@@ -22,6 +35,7 @@ app.drawLib = {
 		ctx.restore();
 	},
 	
+	//draw triangle
 	drawTriangle: function(ctx, color, position) {
 		ctx.save();
 		ctx.beginPath();
