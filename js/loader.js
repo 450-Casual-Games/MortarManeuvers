@@ -80,7 +80,29 @@ window.onload = function(){
 	app.Mortar_Maneuvers.init();
 }
 
-// Keypress event listeners
+
+/*
+	Keypress event listeners originally created for:
+		Friendly Fire
+		Game Design and Development 2
+		10/3/2014
+		
+		Alex Fuerst, 
+		Mario Chuman,
+		David Erbelding,
+		Brian Nugent,
+		Ryan Farrell,
+
+
+	Adapted for use in:
+		Mortar Maneuvers
+		Casual Games Development
+		2/15/2015
+		
+		Brian Nugent,
+		Ryan Farrell,
+		Clifton Rice
+*/
 window.addEventListener("keydown", function(e) {
 	if(!app.keypress[e.keyCode] && !app.keydown[e.keyCode]) {
 		app.keypress[e.keyCode] = true;
