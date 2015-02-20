@@ -21,6 +21,11 @@ app.Mortar_Maneuvers = {
 	NUM_COLLECTIBLES_LEVEL_ONE: 3,
 	NUM_COLLECTIBLES_LEVEL_TWO: 5,
 	NUM_START_LIVES: 5,
+	
+	GAME_STATE_MENU: 0,
+	GAME_STATE_PLAY: 1,
+	GAME_STATE_OVER: 2,
+	GAME_STATE_PAUSE: 3,
 		
 	//properties
     canvas: undefined,
@@ -29,8 +34,8 @@ app.Mortar_Maneuvers = {
 	utilities: undefined,
 	buttons: undefined,
 	escapePressed: undefined,
-	gameState: undefined,
-	currentState: undefined,
+	//gameState: undefined,
+	currentState: 1,
 	animationID: undefined,
 	screenHeight: undefined,
 	screenWidth: undefined,
@@ -85,14 +90,10 @@ app.Mortar_Maneuvers = {
 		
 		this.currentCooldown = this.maxCooldown;
 		this.numLives = this.NUM_START_LIVES;
+
 		
-		this.gameState = {
-			mainMenu: 0,
-			play: 1,
-			gameOver: 2,
-			pause: 3,
-		}
-		this.currentState = this.gameState[1];
+		
+		//this.currentState = this.GAME_STATE_MENU;
 		
 		this.prisonerIMGs = [];
 		this.loadImages();
@@ -102,7 +103,7 @@ app.Mortar_Maneuvers = {
 		this.dt = 0;
 		this.lastTime=0;
 		
-		
+		//this.canvas.onmousedown = this.doMousedown;	
 		this.update();
 	},
 	
@@ -144,7 +145,7 @@ app.Mortar_Maneuvers = {
 			this.numLives--;
 			this.reset();
 		} else {
-			this.currentState = this.gameState[2];
+			this.currentState = this.GAME_STATE_OVER;
 			this.numLives = this.NUM_START_LIVES;
 		}
 	},
@@ -183,31 +184,87 @@ app.Mortar_Maneuvers = {
 		
 	},
 	
-	checkForCollisions: function() {
-		//var self = this;
+	drawText: function(string, x, y, size, color) {
+		this.ctx.font = 'bold '+size+'px Monospace';
+		this.ctx.fillStyle = color;
+		this.ctx.fillText(string, x, y);
+	},
+	
+	drawHUD: function() {
+		// draw score
+		// drawText(string, x, y, size, color)
 		
-		for(var i = 0; i < this.prisoners.length; i++) {
-			for(var j = 0; j < this.collectibles.length; j++) {
-				if(app.utilities.collides(this.prisoners[i], this.collectibles[j])) {
-					//collision stuff
-					this.collect(j);
-				}
-			}
-			for(var k = 0; k < this.activeExplosions.length; k++) {
-				if(app.utilities.collides(this.prisoners[i], this.activeExplosions[k])) {
-					//collision stuff
-					this.kill(k);
-				}
-			}
+		//this.drawText("Total Score: " + totalScore, CANVAS_WIDTH - 200, 20, 16, "#ddd");
+		
+		if(this.currentState == this.GAME_STATE_PLAY) {
+			this.drawText("This Round: " + this.numCollected + "/" + this.NUM_COLLECTIBLES_LEVEL_ONE, 30, 30, 16, "#FFFFFF");
 		}
 		
-		for(var i = 0; i < this.activeExplosions.length; i++) {
-			for(var j = 0; j < this.collectibles.length; j++) {
-				if(app.utilities.collides(this.activeExplosions[i], this.collectibles[j])) {
-					//collision stuff
-					this.activeExplosions.push(this.makeNewExplosion(this.collectibles[j].position));
-					this.collectibles.splice(j, 1);
-					this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(this.screenWInfo.x+(this.collectibleSize/2), this.screenWInfo.y-(this.collectibleSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.collectibleSize/2), this.screenHInfo.y-(this.collectibleSize/2)), this.collectibleSize));
+		if(this.currentState == this.GAME_STATE_MENU) {
+			this.ctx.save();
+			this.ctx.textAlign = "center";
+			this.ctx.textBaseline = "middle";
+			this.drawText("Click the mouse to begin playing.", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 34, "white");
+			this.ctx.restore();
+		} // end if
+		
+		if(this.currentState == this.GAME_STATE_OVER) {
+			this.ctx.save();
+			this.ctx.textAlign = "center";
+			this.ctx.textBaseline = "middle";
+			this.drawText("Round Over", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 34,	 "red");
+			this.drawText("Click to continue", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 34, "red");
+			this.drawText("Next round there are " + this.NUM_COLLECTIBLES_LEVEL_ONE + " circles", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#ddd");
+			this.ctx.restore();
+		} // end if
+		/*
+		if(gameState == GAME_STATE_REPEAT_LEVEL) {
+			ctx.save();
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			drawText("You missed the goal of " + Math.floor(numCircles * PERCENT_CIRCLES_TO_ADVANCE) + " circles", CANVAS_WIDTH/2, CANVAS_HEIGHT/2 - 40, 34,	 "#ddd");
+			drawText("Click to continue", CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 34, "red");
+			drawText("Goal: " + Math.floor(numCircles * PERCENT_CIRCLES_TO_ADVANCE) + " of " + (numCircles - numBadCircles) + " circles", CANVAS_WIDTH/2 , CANVAS_HEIGHT/2 + 35, 24, "#ddd");
+			ctx.restore();
+		}
+		*/
+		if(this.currentState == this.GAME_STATE_PAUSE) {
+			this.ctx.save();
+			this.ctx.textAlign = "center";
+			this.ctx.textBaseline = "middle";
+			this.drawText("Game Over", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 34,	 "#ddd");
+			//this.drawText("Your final score was " + totalScore, CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 34, "red");
+			this.drawText("Click to play again", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#ddd");
+			this.ctx.restore();
+		}
+	}, // end function
+	
+	checkForCollisions: function() {
+		//var self = this;
+		if(this.currentState == this.GAME_STATE_PLAY) {
+			for(var i = 0; i < this.prisoners.length; i++) {
+				for(var j = 0; j < this.collectibles.length; j++) {
+					if(app.utilities.collides(this.prisoners[i], this.collectibles[j])) {
+						//collision stuff
+						this.collect(j);
+					}
+				}
+				for(var k = 0; k < this.activeExplosions.length; k++) {
+					if(app.utilities.collides(this.prisoners[i], this.activeExplosions[k])) {
+						//collision stuff
+						this.kill(k);
+					}
+				}
+			}
+			
+			for(var i = 0; i < this.activeExplosions.length; i++) {
+				for(var j = 0; j < this.collectibles.length; j++) {
+					if(app.utilities.collides(this.activeExplosions[i], this.collectibles[j])) {
+						//collision stuff
+						this.activeExplosions.push(this.makeNewExplosion(this.collectibles[j].position));
+						this.collectibles.splice(j, 1);
+						this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(this.screenWInfo.x+(this.collectibleSize/2), this.screenWInfo.y-(this.collectibleSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.collectibleSize/2), this.screenHInfo.y-(this.collectibleSize/2)), this.collectibleSize));
+					}
 				}
 			}
 		}
@@ -264,13 +321,34 @@ app.Mortar_Maneuvers = {
 		return new app.Explosion(position.x, position.y, 12 ,75)
 	},
 	
+	doMousedown: function(e) {
+		if(this.currentState == this.GAME_STATE_PLAY) return;
+		if(this.currentState == this.GAME_STATE_MENU) {
+			this.currentState = this.GAME_STATE_PLAY;
+			this.reset();
+			return;
+		}
+		if(this.currentState == this.GAME_STATE_OVER) {
+			this.currentState = this.GAME_STATE_PLAY;
+			this.reset();
+			return;
+		}
+		
+		//var mouse = getMouse(e);
+		//console.log("(mouse.x, mouse.y)=" + mouse.x + "," + mouse.y);
+	},
+	
 	update: function() {
 		requestAnimationFrame(this.update.bind(this));
-		
+		/*
+		if(this.currentState == this.GAME_STATE_MENU) {
+			this.ctx.fillStyle = "black";
+			this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+		}
+		if(this.currentState == this.GAME_STATE_PLAY) {
+		*/
 		this.checkForCollisions();
-		
-		
-		
+	
 		//calculate dt
 		this.dt = this.calculateDeltaTime();
 		
@@ -329,6 +407,7 @@ app.Mortar_Maneuvers = {
 		}
 		//draw everything
 		this.draw();
+		this.drawHUD();
 		this.handleKeyboard();
 		app.keypress = [];
 	},
@@ -379,64 +458,4 @@ app.Mortar_Maneuvers = {
 		this.lastTime = now; 
 		return 1/fps;
 	}
-	
-		/*
-	handleKeyboard: function() {
-		switch(this.currentState) {
-			case this.gameState.play:
-				if (this.escapePressed == false) {
-					if (this.app.keydown[this.app.KEYBOARD.KEY_ESC]) {
-						this.currentState = this.gameState.pause;
-
-						this.escapePressed = true;
-					}
-				} else {
-					if (!this.app.keydown[this.app.KEYBOARD.KEY_ESC]) {
-						this.escapePressed = false;
-					}
-				}
-			
-				//Player input
-				if (this.app.keydown[this.app.KEYBOARD.KEY_W]) {
-					this.currentPrisoner.move("up", this.dt);
-				}
-				if (this.app.keydown[this.app.KEYBOARD.KEY_A]) {
-					this.currentPrisoner.move("left", this.dt);
-				}
-				if (this.app.keydown[this.app.KEYBOARD.KEY_D]) {
-					this.currentPrisoner.move("right", this.dt);
-				}
-				if (this.app.keydown[this.app.KEYBOARD.KEY_S]) {
-					this.currentPrisoner.move("down", this.dt);
-				}
-				break;
-				
-			case this.gameState.pause:
-				if (this.escapePressed == false) {
-					if (this.app.keydown[this.app.KEYBOARD.KEY_ESC] == true) {
-						this.currentState = this.gameState.play;
-						this.escapePressed = true;
-					}
-				} else {
-					if (this.app.keydown[this.app.KEYBOARD.KEY_ESC] == false) {
-						this.escapePressed = false;
-					}
-				}
-				break;
-		}
-		
-		if (this.currentState == this.gameState.pause) {
-			if (this.escapePressed == false) {
-				if (this.app.keydown[this.app.KEYBOARD.KEY_ESC] == true) {
-					this.currentState = this.gameState.play;
-					this.escapePressed = true;
-				}
-			} else {
-				if (this.app.keydown[this.app.KEYBOARD.KEY_ESC] == false) {
-					this.escapePressed = false;
-				}
-			}
-		}
-	},
-	*/
 }
