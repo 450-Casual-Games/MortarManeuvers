@@ -19,6 +19,7 @@ app.Mortar_Maneuvers = {
     CANVAS_WIDTH: 640, 
     CANVAS_HEIGHT: 480,
 	NUM_COLLECTIBLES_LEVEL_ONE: 3,
+	NUM_COLLECTIBLES_LEVEL_TWO: 5,
 	NUM_START_LIVES: 5,
 		
 	//properties
@@ -44,6 +45,15 @@ app.Mortar_Maneuvers = {
 	lastTime: undefined,
 	numCollected: 0,
 	numPrisoners: 2,
+	
+	
+	
+	collectibleSize: 30,
+	mortarSize: 60,
+	
+	levels: undefined,
+	currentLevelIndex: 0,
+	playedTutorial: false,
 
 	numLives: undefined,
 	mortarIMG: undefined,
@@ -51,6 +61,10 @@ app.Mortar_Maneuvers = {
 	prisonerIMGs: undefined,
 	maxCooldown: 1,
 	currentCooldown: undefined,
+	
+	HUDHeight: undefined,
+	screenWInfo: undefined,
+	screenHInfo: undefined,
 	
     // methods
 	init: function() {
@@ -61,8 +75,13 @@ app.Mortar_Maneuvers = {
 		this.canvas.height = this.CANVAS_HEIGHT;
 		this.ctx = this.canvas.getContext('2d');
 		
-		this.screenWidth = this.CANVAS_WIDTH - 10;
-		this.screenHeight = this.CANVAS_HEIGHT - 10;
+		//this.screenWidth = this.CANVAS_WIDTH - 10;
+		//this.screenHeight = this.CANVAS_HEIGHT - 10;
+		
+		this.HUDHeight = 50;
+		
+		this.screenWInfo = new app.Vector(0, this.CANVAS_WIDTH);
+		this.screenHInfo = new app.Vector(this.HUDHeight, this.CANVAS_HEIGHT);
 		
 		this.currentCooldown = this.maxCooldown;
 		this.numLives = this.NUM_START_LIVES;
@@ -141,8 +160,8 @@ app.Mortar_Maneuvers = {
 		{
 			var randomImageIndex = Math.floor(app.utilities.getRandom(0, 4));
 			var randomImage = this.prisonerIMGs[randomImageIndex];
-			//Prisoner(img, x, y, width, height, chainLength, angle)
-			this.prisoners.push(new app.Prisoner(randomImage,this.CANVAS_WIDTH/2 - (i * 10),this.CANVAS_HEIGHT/2 - (i * 10), 40, 20, 100, 0));
+			//Prisoner(img, x, y, width, height, screenWInfo, screenHInfo chainLength, angle)
+			this.prisoners.push(new app.Prisoner(randomImage, this.CANVAS_WIDTH/2 - (i * 10), this.CANVAS_HEIGHT/2 - (i * 10), 40, 20, this.screenWInfo, this.screenHInfo,  100, 0));
 		}
 		
 		//set focus on the first prisoner
@@ -158,7 +177,7 @@ app.Mortar_Maneuvers = {
 		// Collectibles
 		this.collectibles = [];
 		for(var i = 0; i < this.NUM_COLLECTIBLES_LEVEL_ONE; i ++) {
-			this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 30));
+			this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(this.screenWInfo.x+(this.collectibleSize/2), this.screenWInfo.y-(this.collectibleSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.collectibleSize/2), this.screenHInfo.y-(this.collectibleSize/2)), this.collectibleSize));
 		}
 		this.inactiveCollectibles = [];
 		
@@ -188,13 +207,13 @@ app.Mortar_Maneuvers = {
 					//collision stuff
 					this.activeExplosions.push(this.makeNewExplosion(this.collectibles[j].position));
 					this.collectibles.splice(j, 1);
-					this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 30));
+					this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(this.screenWInfo.x+(this.collectibleSize/2), this.screenWInfo.y-(this.collectibleSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.collectibleSize/2), this.screenHInfo.y-(this.collectibleSize/2)), this.collectibleSize));
 				}
 			}
 		}
 	},
 	
-	//handle player input
+	// Handle player input
 	handleKeyboard: function() {
 		//Player input
 		if (this.app.keydown[this.app.KEYBOARD.KEY_W] == true) {
@@ -211,10 +230,10 @@ app.Mortar_Maneuvers = {
 		if (this.app.keydown[this.app.KEYBOARD.KEY_D]) {
 			this.currentPrisoner.rotate("right", this.dt);
 		}
-		if (this.app.keydown[this.app.KEYBOARD.KEY_Q]) {
+		if (this.app.keypress[this.app.KEYBOARD.KEY_Q]) {
 			this.switchPrisoner(-1);
 		}
-		if (this.app.keydown[this.app.KEYBOARD.KEY_E]) {
+		if (this.app.keypress[this.app.KEYBOARD.KEY_E]) {
 			this.switchPrisoner(1);
 		}
 	},
@@ -250,13 +269,15 @@ app.Mortar_Maneuvers = {
 		
 		this.checkForCollisions();
 		
+		
+		
 		//calculate dt
 		this.dt = this.calculateDeltaTime();
 		
 		// Fire mortars
 		this.currentCooldown -= this.dt;
 		if(this.currentCooldown <= 0) {
-			this.activeMortars.push(new app.Mortar(app.utilities.getRandom(15, this.screenWidth-15), app.utilities.getRandom(30, this.screenHeight-30), 60, this.mortarIMG));
+			this.activeMortars.push(new app.Mortar(app.utilities.getRandom(this.screenWInfo.x+(this.mortarSize/2), this.screenWInfo.y-(this.mortarSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.mortarSize/2), this.screenHInfo.y-(this.mortarSize/2)), this.mortarSize, this.mortarIMG));
 			this.currentCooldown = this.maxCooldown;
 		}
 		
@@ -309,14 +330,15 @@ app.Mortar_Maneuvers = {
 		//draw everything
 		this.draw();
 		this.handleKeyboard();
+		app.keypress = [];
 	},
 	
 	//draw the game
 	draw: function() {
 		this.ctx.fillStyle = "black";
 		this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
-		var backgroundPos = new app.Vector(this.CANVAS_WIDTH/2,this.CANVAS_HEIGHT /2);
-		var backgroundSize = new app.Vector(this.screenWidth,this.screenHeight);
+		var backgroundPos = new app.Vector(this.CANVAS_WIDTH/2,(this.CANVAS_HEIGHT/2) + this.HUDHeight/2);
+		var backgroundSize = new app.Vector(this.screenWInfo.y - this.screenWInfo.x,this.screenHInfo.y - this.screenHInfo.x);
 		app.drawLib.drawRect(this.ctx, "#005200", backgroundPos, backgroundSize);
 		
 		//draw prisoners

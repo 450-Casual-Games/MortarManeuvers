@@ -10,11 +10,16 @@ var app = app || {};
 
 // the 'ship' object literal is now a property of our 'app' global variable
 app.Prisoner = function() {
-	function Prisoner(img, x, y, width, height, chainLength, angle) {
+	function Prisoner(img, x, y, width, height, screenWInfo, screenHInfo, chainLength, angle) {
 		//instance variables of the prisoner
 		this.position = new app.Vector(x,y);
 		this.angle = angle;
 		this.angleChange = 3;
+		
+		//screen related info
+		this.screenWInfo = screenWInfo;
+		this.screenHInfo = screenHInfo;
+		
 		
 		//movement related variables
 		this.isAccelerating = false;
@@ -47,8 +52,6 @@ app.Prisoner = function() {
 		this.spawnPosition = new app.Vector(x, y);
 		this.spawnAngle = angle;
 		this.SPEED = 2;
-
-		
 	};
 	
 	//Prisoner.app = undefined;
@@ -60,7 +63,7 @@ app.Prisoner = function() {
 			//if no image, draw a rectangle
 			if(this.isActive)
 			{
-				app.drawLib.drawCircle(ctx, "white", this.position, this.radius);
+				app.drawLib.drawCircle(ctx, "rgba(255, 255, 255, 0.25)", this.position, this.radius);
 			}
 			if(this.image)  //if image, draw that instead
 			{
@@ -91,7 +94,6 @@ app.Prisoner = function() {
 	
 	//update
 	p.update = function(dt, otherPrisoner) {	
-		// Cyber Fighters
 		//update angle in radians
 		this.rotationAsRadians = (this.angle - 90) * (Math.PI/180);
 		this.calculateForward();
@@ -101,6 +103,9 @@ app.Prisoner = function() {
 		if(this.isActive)
 		{
 			this.move(dt, otherPrisoner);
+		} else {
+			this.acceleration = new app.Vector(0, 0);
+			this.velocity = new app.Vector(0, 0);
 		}
 		//respawn
 		var self = this;
@@ -126,25 +131,7 @@ app.Prisoner = function() {
 	
 	//input methods
 	
-	//move: takes delta time to affect the speed
-	p.move = function(direction) {
-		var self = this;
-		switch(direction) {
-			case "up":
-				this.position.y -= this.SPEED;
-				break;
-			case "down":
-				this.position.y += this.SPEED;
-				break;
-			case "left":
-				this.position.x -= this.SPEED;
-				break;
-			case "right":
-				this.position.x += this.SPEED;
-				break;
-		}
-	};
-	
+	//Takes delta time to affect the speed
 	p.move = function(dt, otherPrisoner)
 	{
 		// Cyber Fighters
@@ -166,7 +153,7 @@ app.Prisoner = function() {
 			
 			var futurePosition = this.position.sum(tempVelocity);
 			
-			if(futurePosition.distance(otherPrisoner.position) < this.chainLength)
+			if(futurePosition.distance(otherPrisoner.position) < this.chainLength && this.inBounds(futurePosition))
 			{
 				this.velocity = tempVelocity;
 			}
@@ -233,6 +220,18 @@ app.Prisoner = function() {
 	{
 		this.forward.x = Math.cos(this.rotationAsRadians);
 		this.forward.y = Math.sin(this.rotationAsRadians);
+	};
+	
+	p.inBounds = function(pos)
+	{
+		if(pos.x > this.screenWInfo.x+(this.size.y/2) && pos.x < this.screenWInfo.y-(this.size.y/2) && pos.y > this.screenHInfo.x+(this.size.y/2) && pos.y < this.screenHInfo.y-(this.size.y/2))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	};
 	
 	

@@ -12,19 +12,6 @@ var app = app || {};
 //CONSTANTS
 app.KEYBOARD = {
 	"KEY_ESC": 27,
-
-	"KEY_LEFT": 37,
-	"KEY_UP": 38,
-	"KEY_RIGHT": 39,
-	"KEY_DOWN": 40,
-	"KEY_CTRL": 17,
-	
-	"KEY_J": 74,
-	"KEY_I": 73,
-	"KEY_L": 76,
-	"KEY_K": 75,
-	"KEY_H": 72,
-	"KEY_U": 85,
 	
 	"KEY_W": 87,
 	"KEY_A": 65,
@@ -36,8 +23,7 @@ app.KEYBOARD = {
 
 
 // Loading images.
-app.IMAGES = 
-{
+app.IMAGES = {
 	chainSegment: "images/ChainUISegment.png",
 	mattock: "images/PickupMattock.png",
 	prisoner1: "images/Prisoner1.png",
@@ -55,12 +41,12 @@ app.IMAGES =
 //Mortar_Maneuvers.js will "poll" this array every frame
 //this works because js has "sparse arrays" - not every language does
 app.keydown = [];
+app.keypress = [];
 
-app.mouse = 
-{
+app.mouse = {
 	x:0,
 	y:0,
-	clicked:false,
+	clicked: false,
 };
 
 window.onload = function(){
@@ -68,23 +54,6 @@ window.onload = function(){
 	app.Mortar_Maneuvers.Prisoner = app.prisoner;
 	//app.Mortar_Maneuvers.utilities = app.utilities;
 	
-	window.addEventListener("keydown",function(e)
-	{
-		app.keydown[e.keyCode] = true;
-	});
-	window.addEventListener("keyup",function(e)
-	{
-		app.keydown[e.keyCode] = false;
-	});
-	
-	//Mouse events
-	window.addEventListener("mousemove", function(e){
-        app.mouse.x = e.pageX - e.target.offsetLeft;
-        app.mouse.y = e.pageY - e.target.offsetTop;
-	});
-	
-	window.addEventListener("mousedown", function(e){app.mouse.clicked = true;});
-	window.addEventListener("mouseup", function(e){app.mouse.clicked = false;});
 	
 	//Preloads images and sounds
 	app.queue = new createjs.LoadQueue(false);
@@ -110,3 +79,30 @@ window.onload = function(){
 	
 	app.Mortar_Maneuvers.init();
 }
+
+// Keypress event listeners
+window.addEventListener("keydown", function(e) {
+	if(!app.keypress[e.keyCode] && !app.keydown[e.keyCode]) {
+		app.keypress[e.keyCode] = true;
+	}
+	app.keydown[e.keyCode] = true;
+});
+
+window.addEventListener("keyup", function(e) {
+	app.keydown[e.keyCode] = false;
+});
+
+
+
+// Mouse events listeners
+window.addEventListener("mousemove", function(e){
+	app.mouse.x = e.pageX - e.target.offsetLeft;
+	app.mouse.y = e.pageY - e.target.offsetTop;
+});
+	
+window.addEventListener("mousedown", function(e) {
+	app.mouse.clicked = true;
+});
+window.addEventListener("mouseup", function(e) {
+	app.mouse.clicked = false;
+});
