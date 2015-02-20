@@ -20,8 +20,8 @@ app.Collectible = function() {
 		this.size = new app.Vector(size, size);
 		
 		this.image = img;
-		this.sourcePosition = new app.Vector(0,0);
-		this.sourceSize = new app.Vector(144,144);
+		this.sourcePosition = new app.Vector(0, 0);
+		this.sourceSize = new app.Vector(144, 144);
 		
 		//respawn variables
 		/*this.respawnTimer = 0;

@@ -24,8 +24,9 @@ app.Mortar_Maneuvers = {
 	
 	GAME_STATE_MENU: 0,
 	GAME_STATE_PLAY: 1,
-	GAME_STATE_OVER: 2,
-	GAME_STATE_PAUSE: 3,
+	GAME_STATE_ROUND_OVER: 2,
+	GAME_STATE_GAME_OVER: 3,
+	GAME_STATE_PAUSE: 4,
 		
 	//properties
     canvas: undefined,
@@ -35,7 +36,7 @@ app.Mortar_Maneuvers = {
 	buttons: undefined,
 	escapePressed: undefined,
 	//gameState: undefined,
-	currentState: 1,
+	currentState: undefined,
 	animationID: undefined,
 	screenHeight: undefined,
 	screenWidth: undefined,
@@ -50,7 +51,7 @@ app.Mortar_Maneuvers = {
 	lastTime: undefined,
 	numCollected: 0,
 	numPrisoners: 2,
-	
+	roundNumber: 1,
 	
 	
 	collectibleSize: 30,
@@ -92,8 +93,7 @@ app.Mortar_Maneuvers = {
 		this.numLives = this.NUM_START_LIVES;
 
 		
-		
-		//this.currentState = this.GAME_STATE_MENU;
+		this.currentState = 0;
 		
 		this.prisonerIMGs = [];
 		this.loadImages();
@@ -103,7 +103,7 @@ app.Mortar_Maneuvers = {
 		this.dt = 0;
 		this.lastTime=0;
 		
-		//this.canvas.onmousedown = this.doMousedown;	
+		this.canvas.onmousedown = this.doMousedown;	
 		this.update();
 	},
 	
@@ -141,11 +141,11 @@ app.Mortar_Maneuvers = {
 	
 	//handle player-explosion collision
 	kill: function(index) {
-		if(this.numLives >=0) {
+		if(this.numLives > 0) {
 			this.numLives--;
 			this.reset();
 		} else {
-			this.currentState = this.GAME_STATE_OVER;
+			this.currentState = this.GAME_STATE_GAME_OVER;
 			this.numLives = this.NUM_START_LIVES;
 		}
 	},
@@ -197,37 +197,37 @@ app.Mortar_Maneuvers = {
 		//this.drawText("Total Score: " + totalScore, CANVAS_WIDTH - 200, 20, 16, "#ddd");
 		
 		if(this.currentState == this.GAME_STATE_PLAY) {
-			this.drawText("This Round: " + this.numCollected + "/" + this.NUM_COLLECTIBLES_LEVEL_ONE, 30, 30, 16, "#FFFFFF");
+			this.drawText("Pickaxes: " + this.numCollected + "/" + this.NUM_COLLECTIBLES_LEVEL_ONE + "   |   " + "Lives Remaining: " + this.numLives + "   |   " + "Round: " + this.roundNumber, 50, 30, 16, "#E6E6E6");
 		}
 		
 		if(this.currentState == this.GAME_STATE_MENU) {
+			
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
-			this.drawText("Click the mouse to begin playing.", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 34, "white");
+			this.drawText("Click the mouse to begin playing.", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#E6E6E6");
 			this.ctx.restore();
 		} // end if
 		
-		if(this.currentState == this.GAME_STATE_OVER) {
+		if(this.currentState == this.GAME_STATE_ROUND_OVER) {
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
-			this.drawText("Round Over", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 34,	 "red");
-			this.drawText("Click to continue", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 34, "red");
-			this.drawText("Next round there are " + this.NUM_COLLECTIBLES_LEVEL_ONE + " circles", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#ddd");
+			this.drawText("Round Completed", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 30, "#FFFF66");
+			this.drawText("Click to continue", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#FFFF66");
+			this.drawText("Next round there are " + this.NUM_COLLECTIBLES_LEVEL_ONE + " pickaxes", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#E6E6E6");
+			this.ctx.restore();
+		}
+		
+		if(this.currentState == this.GAME_STATE_GAME_OVER) {
+			this.ctx.save();
+			this.ctx.textAlign = "center";
+			this.ctx.textBaseline = "middle";
+			this.drawText("Game Over", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 30,	 "#FF6600");
+			this.drawText("Click to respawn", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#E6E6E6");
 			this.ctx.restore();
 		} // end if
-		/*
-		if(gameState == GAME_STATE_REPEAT_LEVEL) {
-			ctx.save();
-			ctx.textAlign = "center";
-			ctx.textBaseline = "middle";
-			drawText("You missed the goal of " + Math.floor(numCircles * PERCENT_CIRCLES_TO_ADVANCE) + " circles", CANVAS_WIDTH/2, CANVAS_HEIGHT/2 - 40, 34,	 "#ddd");
-			drawText("Click to continue", CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 34, "red");
-			drawText("Goal: " + Math.floor(numCircles * PERCENT_CIRCLES_TO_ADVANCE) + " of " + (numCircles - numBadCircles) + " circles", CANVAS_WIDTH/2 , CANVAS_HEIGHT/2 + 35, 24, "#ddd");
-			ctx.restore();
-		}
-		*/
+		
 		if(this.currentState == this.GAME_STATE_PAUSE) {
 			this.ctx.save();
 			this.ctx.textAlign = "center";
@@ -322,15 +322,16 @@ app.Mortar_Maneuvers = {
 	},
 	
 	doMousedown: function(e) {
-		if(this.currentState == this.GAME_STATE_PLAY) return;
-		if(this.currentState == this.GAME_STATE_MENU) {
-			this.currentState = this.GAME_STATE_PLAY;
-			this.reset();
+		var mm = app.Mortar_Maneuvers;
+		//if(this.currentState == this.GAME_STATE_PLAY) return;
+		if(mm.currentState == mm.GAME_STATE_MENU) {
+			mm.currentState = mm.GAME_STATE_PLAY;
+			mm.reset();
 			return;
 		}
-		if(this.currentState == this.GAME_STATE_OVER) {
-			this.currentState = this.GAME_STATE_PLAY;
-			this.reset();
+		if(mm.currentState == mm.GAME_STATE_GAME_OVER) {
+			mm.currentState = mm.GAME_STATE_PLAY;
+			mm.reset();
 			return;
 		}
 		
@@ -340,73 +341,73 @@ app.Mortar_Maneuvers = {
 	
 	update: function() {
 		requestAnimationFrame(this.update.bind(this));
-		/*
 		if(this.currentState == this.GAME_STATE_MENU) {
 			this.ctx.fillStyle = "black";
 			this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
 		}
 		if(this.currentState == this.GAME_STATE_PLAY) {
-		*/
-		this.checkForCollisions();
-	
-		//calculate dt
-		this.dt = this.calculateDeltaTime();
-		
-		// Fire mortars
-		this.currentCooldown -= this.dt;
-		if(this.currentCooldown <= 0) {
-			this.activeMortars.push(new app.Mortar(app.utilities.getRandom(this.screenWInfo.x+(this.mortarSize/2), this.screenWInfo.y-(this.mortarSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.mortarSize/2), this.screenHInfo.y-(this.mortarSize/2)), this.mortarSize, this.mortarIMG));
-			this.currentCooldown = this.maxCooldown;
-		}
-		
-		//update the prisoners
-		for(var i = 0; i < this.prisoners.length; i++) {
-			var otherPrisoner;
 			
-			if(i == 0)
-			{
-				otherPrisoner = this.prisoners[1];
-			}
-			else if(i == 1)
-			{
-				otherPrisoner = this.prisoners[0];
-			}
-			this.prisoners[i].update(this.ctx, otherPrisoner);
-		}
+			this.checkForCollisions();
 		
-		//update the active mortar fire
-		for(var i = 0; i < this.activeMortars.length; i++)
-		{
-			if(this.activeMortars[i].getActive() == true)
-			{
-				//update the active explosion
-				this.activeMortars[i].update(this.dt);
-			}
-			else if (this.activeMortars[i].getActive() == false)
-			{
-				this.activeExplosions.push(this.makeNewExplosion(this.activeMortars[i].position));
-				//remove element from array
-				this.activeMortars.splice(i, 1);
-			}
-		}
+			//calculate dt
+			this.dt = this.calculateDeltaTime();
 			
-		
-		//update the active explosions
-		for(var i = 0; i < this.activeExplosions.length; i++)
-		{
-			if(this.activeExplosions[i].getActive() == true)
-			{
-				//update the active explosion
-				this.activeExplosions[i].update(this.dt);
+			// Fire mortars
+			this.currentCooldown -= this.dt;
+			if(this.currentCooldown <= 0) {
+				this.activeMortars.push(new app.Mortar(app.utilities.getRandom(this.screenWInfo.x+(this.mortarSize/2), this.screenWInfo.y-(this.mortarSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.mortarSize/2), this.screenHInfo.y-(this.mortarSize/2)), this.mortarSize, this.mortarIMG));
+				this.currentCooldown = this.maxCooldown;
 			}
-			else if (this.activeExplosions[i].getActive() == false)
-			{
-				//remove element from array
-				this.activeExplosions.splice(i, 1);
+			
+			//update the prisoners
+			for(var i = 0; i < this.prisoners.length; i++) {
+				var otherPrisoner;
+				
+				if(i == 0)
+				{
+					otherPrisoner = this.prisoners[1];
+				}
+				else if(i == 1)
+				{
+					otherPrisoner = this.prisoners[0];
+				}
+				this.prisoners[i].update(this.ctx, otherPrisoner);
 			}
+			
+			//update the active mortar fire
+			for(var i = 0; i < this.activeMortars.length; i++)
+			{
+				if(this.activeMortars[i].getActive() == true)
+				{
+					//update the active explosion
+					this.activeMortars[i].update(this.dt);
+				}
+				else if (this.activeMortars[i].getActive() == false)
+				{
+					this.activeExplosions.push(this.makeNewExplosion(this.activeMortars[i].position));
+					//remove element from array
+					this.activeMortars.splice(i, 1);
+				}
+			}
+				
+			
+			//update the active explosions
+			for(var i = 0; i < this.activeExplosions.length; i++)
+			{
+				if(this.activeExplosions[i].getActive() == true)
+				{
+					//update the active explosion
+					this.activeExplosions[i].update(this.dt);
+				}
+				else if (this.activeExplosions[i].getActive() == false)
+				{
+					//remove element from array
+					this.activeExplosions.splice(i, 1);
+				}
+			}
+			//draw everything
+			this.draw();
 		}
-		//draw everything
-		this.draw();
 		this.drawHUD();
 		this.handleKeyboard();
 		app.keypress = [];
