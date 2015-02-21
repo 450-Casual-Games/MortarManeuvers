@@ -49,6 +49,7 @@ app.Mortar_Maneuvers = {
 	inactiveCollectibles: undefined,
 	dt: undefined,
 	lastTime: undefined,
+
 	numCollected: 0,
 	numPrisoners: 2,
 	roundNumber: 1,
@@ -88,9 +89,13 @@ app.Mortar_Maneuvers = {
 		
 		this.screenWInfo = new app.Vector(0, this.CANVAS_WIDTH);
 		this.screenHInfo = new app.Vector(this.HUDHeight, this.CANVAS_HEIGHT);
+		this.levels = [];
+		this.initLevels();
 		
-		this.currentCooldown = this.maxCooldown;
+		this.currentCooldown = this.levels[this.currentLevelIndex].cooldown;
 		this.numLives = this.NUM_START_LIVES;
+
+
 
 		
 		this.currentState = 0;
@@ -105,6 +110,34 @@ app.Mortar_Maneuvers = {
 		
 		this.canvas.onmousedown = this.doMousedown;	
 		this.update();
+	},
+	
+	initLevels: function() {
+		this.levels[0] = {
+			cooldown: 100,
+			numCollectibles: 1,
+			maxDistance: 100,
+		}
+		this.levels[1] = {
+			cooldown: 2,
+			numCollectibles: 3,
+			maxDistance: 75,
+		}
+		this.levels[2] = {
+			cooldown: 1.5,
+			numCollectibles: 5,
+			maxDistance: 50,
+		}
+		this.levels[3] = {
+			cooldown: 1,
+			numCollectibles: 7,
+			maxDistance: 25,
+		}
+		this.levels[4] = {
+			cooldown: 0.5,
+			numCollectibles: 9,
+			maxDistance: 10,
+		}
 	},
 	
 	//load images
@@ -134,13 +167,20 @@ app.Mortar_Maneuvers = {
 	
 	//handle player-collectable collision
 	collect: function(index) {
+		 
 		this.collectibles.splice(index, 1);
 		this.numCollected++;
-		console.log("You collected an item, number collected: " + this.numCollected + " out of " + this.NUM_COLLECTIBLES_LEVEL_ONE);
+		console.log("You collected an item, number collected: " + this.numCollected + " out of " + this.levels[this.currentLevelIndex].numCollectibles);
+		
+		if(this.numCollected == this.levels[this.currentLevelIndex].numCollectibles) {
+		console.log("numcollecitbles in level: " + this.levels[this.currentLevelIndex].numCollectibles);
+			this.currentState = this.GAME_STATE_ROUND_OVER;
+		}
+		
 	},
 	
 	//handle player-explosion collision
-	kill: function(index) {
+	kill: function() {
 		if(this.numLives > 0) {
 			this.numLives--;
 			this.reset();
@@ -162,7 +202,7 @@ app.Mortar_Maneuvers = {
 			var randomImageIndex = Math.floor(app.utilities.getRandom(0, 4));
 			var randomImage = this.prisonerIMGs[randomImageIndex];
 			//Prisoner(img, x, y, width, height, screenWInfo, screenHInfo chainLength, angle)
-			this.prisoners.push(new app.Prisoner(randomImage, this.CANVAS_WIDTH/2 - (i * 10), this.CANVAS_HEIGHT/2 - (i * 10), 40, 20, this.screenWInfo, this.screenHInfo,  100, 0));
+			this.prisoners.push(new app.Prisoner(randomImage, this.CANVAS_WIDTH/2 - (i * 10), this.CANVAS_HEIGHT/2 - (i * 10), 40, 20, this.screenWInfo, this.screenHInfo,  this.levels[this.currentLevelIndex].maxDistance, 0));
 		}
 		
 		//set focus on the first prisoner
@@ -177,7 +217,7 @@ app.Mortar_Maneuvers = {
 		
 		// Collectibles
 		this.collectibles = [];
-		for(var i = 0; i < this.NUM_COLLECTIBLES_LEVEL_ONE; i ++) {
+		for(var i = 0; i < this.levels[this.currentLevelIndex].numCollectibles; i ++) {
 			this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(this.screenWInfo.x+(this.collectibleSize/2), this.screenWInfo.y-(this.collectibleSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.collectibleSize/2), this.screenHInfo.y-(this.collectibleSize/2)), this.collectibleSize));
 		}
 		this.inactiveCollectibles = [];
@@ -197,7 +237,7 @@ app.Mortar_Maneuvers = {
 		//this.drawText("Total Score: " + totalScore, CANVAS_WIDTH - 200, 20, 16, "#ddd");
 		
 		if(this.currentState == this.GAME_STATE_PLAY) {
-			this.drawText("Pickaxes: " + this.numCollected + "/" + this.NUM_COLLECTIBLES_LEVEL_ONE + "   |   " + "Lives Remaining: " + this.numLives + "   |   " + "Round: " + this.roundNumber, 50, 30, 16, "#E6E6E6");
+			this.drawText("Pickaxes: " + this.numCollected + "/" + this.NUM_COLLECTIBLES_LEVEL_ONE + "   |   " + "Lives Remaining: " + this.numLives + "   |   " + "Round: " + this.currentLevelIndex, 50, 30, 16, "#E6E6E6");
 		}
 		
 		if(this.currentState == this.GAME_STATE_MENU) {
@@ -205,6 +245,7 @@ app.Mortar_Maneuvers = {
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
+			this.drawText("MORTAR MANEUVERS", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/4, 50, "#E0E900");
 			this.drawText("Click the mouse to begin playing.", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#E6E6E6");
 			this.ctx.restore();
 		} // end if
@@ -215,8 +256,10 @@ app.Mortar_Maneuvers = {
 			this.ctx.textBaseline = "middle";
 			this.drawText("Round Completed", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 30, "#FFFF66");
 			this.drawText("Click to continue", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#FFFF66");
-			this.drawText("Next round there are " + this.NUM_COLLECTIBLES_LEVEL_ONE + " pickaxes", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#E6E6E6");
+			this.drawText("Next round there are " + this.numCollectibles[this.currentLevelIndex] + " pickaxes", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#E6E6E6");
 			this.ctx.restore();
+			
+			//this.numLives = this.NUM_START_LIVES;
 		}
 		
 		if(this.currentState == this.GAME_STATE_GAME_OVER) {
@@ -341,7 +384,7 @@ app.Mortar_Maneuvers = {
 	
 	update: function() {
 		requestAnimationFrame(this.update.bind(this));
-		if(this.currentState == this.GAME_STATE_MENU) {
+		if(this.currentState == this.GAME_STATE_MENU || this.currentState == this.GAME_STATE_GAME_OVER) {
 			this.ctx.fillStyle = "black";
 			this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
 		}
@@ -356,7 +399,7 @@ app.Mortar_Maneuvers = {
 			this.currentCooldown -= this.dt;
 			if(this.currentCooldown <= 0) {
 				this.activeMortars.push(new app.Mortar(app.utilities.getRandom(this.screenWInfo.x+(this.mortarSize/2), this.screenWInfo.y-(this.mortarSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.mortarSize/2), this.screenHInfo.y-(this.mortarSize/2)), this.mortarSize, this.mortarIMG));
-				this.currentCooldown = this.maxCooldown;
+				this.currentCooldown = this.levels[this.currentLevelIndex].cooldown;
 			}
 			
 			//update the prisoners
