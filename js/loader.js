@@ -52,17 +52,18 @@ app.mouse = {
 window.onload = function(){
 	app.Mortar_Maneuvers.app = app;
 	app.Mortar_Maneuvers.Prisoner = app.prisoner;
+	//app.Mortar_Maneuvers.SoundHandler = app.SoundHandler;
 	//app.Mortar_Maneuvers.utilities = app.utilities;
 	
 	
 	//Preloads images and sounds
 	app.queue = new createjs.LoadQueue(false);
-	//app.queue.installPlugin(createjs.Sound);
-	/*app.queue.on("complete", function()
+	app.queue.installPlugin(createjs.Sound);
+	app.queue.on("complete", function()
 	{
 		app.Mortar_Maneuvers.init();
 	});
-	*/
+	
 	// Loads the image files
 	app.queue.loadManifest(
 	[
@@ -77,7 +78,7 @@ window.onload = function(){
 		{id: "reticleCircle" , src: "images/ReticleCircle.png"},
 	]);
 	
-	app.Mortar_Maneuvers.init();
+	//app.Mortar_Maneuvers.init();
 }
 
 

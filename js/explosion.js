@@ -28,6 +28,9 @@ app.Explosion = function() {
 		//respawn variables
 		this.respawnTimer = 0;
 		this.timerStart = 50;
+		
+		this.soundHandler = new app.SoundHandler();
+		this.soundHandler.explosionSoundPlay();
 	};
 	
 	//Explosion.app = undefined;

@@ -73,6 +73,8 @@ app.Mortar_Maneuvers = {
 	screenWInfo: undefined,
 	screenHInfo: undefined,
 	
+	soundHandler: undefined,
+	
     // methods
 	init: function() {
 		console.log("Init called");
@@ -95,7 +97,9 @@ app.Mortar_Maneuvers = {
 		
 		this.numLives = this.NUM_START_LIVES;
 
-
+		//sound variables
+		this.soundHandler = new app.SoundHandler();
+		//this.soundHandler.themePlay();
 
 		
 		this.currentState = 0;
@@ -192,7 +196,7 @@ app.Mortar_Maneuvers = {
 	
 	//handle player-collectable collision
 	collect: function(index) {
-		 
+		
 		this.collectibles.splice(index, 1);
 		this.numCollected++;
 		console.log("You collected an item, number collected: " + this.numCollected + " out of " + this.levels[this.currentLevelIndex].numCollectibles);

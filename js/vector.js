@@ -1,15 +1,15 @@
 /*
 	Created originally for:
-			Friendly Fire
-	
-			Alex Fuerst, 
-			Mario Chuman,
-			David Erbelding,
-			Brian Nugent,
-			Ryan Farrell,
+		Friendly Fire
 
-			Game Design and Development 2
-			10/3/2014
+		Alex Fuerst, 
+		Mario Chuman,
+		David Erbelding,
+		Brian Nugent,
+		Ryan Farrell,
+
+		Game Design and Development 2
+		10/3/2014
 
 	Adapted for use in:
 		Mortar Maneuvers
