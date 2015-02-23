@@ -40,13 +40,16 @@ app.Mortar_Maneuvers = {
 	animationID: undefined,
 	screenHeight: undefined,
 	screenWidth: undefined,
+	
 	currentPrisoner: undefined,
 	currentPrisonerIndex: undefined,
 	prisoners: undefined,
+	
 	activeExplosions: undefined,
 	activeMortars: undefined,
 	collectibles: undefined,
 	inactiveCollectibles: undefined,
+	
 	dt: undefined,
 	lastTime: undefined,
 
@@ -63,10 +66,14 @@ app.Mortar_Maneuvers = {
 	playedTutorial: false,
 
 	numLives: undefined,
+	
+	//images
 	mortarIMG: undefined,
 	collectableIMG: undefined,
 	prisonerIMGs: undefined,
-	//maxCooldown: 1,
+	hatIMG: undefined,
+	explosionIMGs: undefined,
+
 	currentCooldown: undefined,
 	
 	HUDHeight: undefined,
@@ -105,6 +112,7 @@ app.Mortar_Maneuvers = {
 		this.currentState = 0;
 		
 		this.prisonerIMGs = [];
+		this.explosionIMGs = [];
 		this.loadImages();
 		
 		this.reset();
@@ -118,7 +126,7 @@ app.Mortar_Maneuvers = {
 	
 	initLevels: function() {
 		this.levels[0] = {
-			cooldown: 100,
+			cooldown: 3,
 			numCollectibles: 1,
 			maxDistance: 100,
 		}
@@ -192,6 +200,25 @@ app.Mortar_Maneuvers = {
 		var p4 = new Image();
 		p4.src = this.app.IMAGES['prisoner4'];
 		this.prisonerIMGs.push(p4);
+		
+		this.hatIMG = new Image();
+		this.hatIMG.src = this.app.IMAGES['hat'];
+		
+		var e1 = new Image();
+		e1.src = this.app.IMAGES['explosion1'];
+		this.explosionIMGs.push(e1);
+		
+		var e2 = new Image();
+		e2.src = this.app.IMAGES['explosion2'];
+		this.explosionIMGs.push(e2);
+		
+		var e3 = new Image();
+		e3.src = this.app.IMAGES['explosion3'];
+		this.explosionIMGs.push(e3);
+		
+		var e4 = new Image();
+		e4.src = this.app.IMAGES['explosion4'];
+		this.explosionIMGs.push(e4);
 	},
 	
 	//handle player-collectable collision
@@ -231,7 +258,7 @@ app.Mortar_Maneuvers = {
 			var randomImageIndex = Math.floor(app.utilities.getRandom(0, 4));
 			var randomImage = this.prisonerIMGs[randomImageIndex];
 			//Prisoner(img, x, y, width, height, screenWInfo, screenHInfo chainLength, angle)
-			this.prisoners.push(new app.Prisoner(randomImage, this.CANVAS_WIDTH/2 - (i * 10), this.CANVAS_HEIGHT/2 - (i * 10), 40, 20, this.screenWInfo, this.screenHInfo,  this.levels[this.currentLevelIndex].maxDistance, 0));
+			this.prisoners.push(new app.Prisoner(randomImage, this.hatIMG, this.CANVAS_WIDTH/2 - (i * 10), this.CANVAS_HEIGHT/2 - (i * 10), 40, 20, this.screenWInfo, this.screenHInfo,  this.levels[this.currentLevelIndex].maxDistance, 0));
 		}
 		
 		//set focus on the first prisoner
@@ -270,7 +297,6 @@ app.Mortar_Maneuvers = {
 		}
 		
 		if(this.currentState == this.GAME_STATE_MENU) {
-			console.log("I just got called");
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
@@ -389,7 +415,7 @@ app.Mortar_Maneuvers = {
 	//return a new explosion at the position
 	makeNewExplosion: function(position) {
 		
-		return new app.Explosion(position.x, position.y, 12 ,75)
+		return new app.Explosion(this.explosionIMGs, position.x, position.y, 12 ,75)
 	},
 	
 	doMousedown: function(e) {

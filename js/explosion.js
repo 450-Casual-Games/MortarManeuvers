@@ -10,7 +10,7 @@ var app = app || {};
 
 // the 'explosion' object literal is now a property of our 'app' global variable
 app.Explosion = function() {
-	function Explosion(x, y, size, maxSize) {
+	function Explosion(images, x, y, size, maxSize) {
 		//instance variables of the explosion
 		this.position = new app.Vector(x,y);
 		
@@ -22,6 +22,18 @@ app.Explosion = function() {
 		
 		this.radius = 0;
 		this.maxSize = maxSize;
+		
+		this.images = images;
+		this.currentImage = 0;
+		this.sourcePosition = new app.Vector(0,0);
+		this.sourceSizes = [];
+		this.sourceSizes.push(new app.Vector(383, 400));//size for img 1
+		this.sourceSizes.push(new app.Vector(194, 182));//size for img 2
+		this.sourceSizes.push(new app.Vector(164, 179));//size for img 3
+		this.sourceSizes.push(new app.Vector(202, 155));//size for img 3
+		
+		this.animationTimer = 0;
+		this.maxAnimationTime = 10;
 		
 		this.EXPLOSION_SPEED = 40;
 		
@@ -37,23 +49,24 @@ app.Explosion = function() {
 	
 	var p = Explosion.prototype;
 	
-	p.draw = function( ctx) {	
-		//if(this.isActive == true) {
-			
-			//if no image, draw a rectangle
-			if(!this.image) 
-			{
-				var color = "red";
-				
-				app.drawLib.drawRect(ctx, color, this.position, this.size);
-			} 
-			else  //if image, draw that instead
-			{
-				var self = this;
-				app.DrawLib.drawImage(ctx, self.image, self.sourcePosition, self.sourceSize, self.position.difference(center), self.size, self.angle);
-			}
+	p.draw = function( ctx) {
+		var self = this;
+		console.log("Source: " + self.images[self.currentImage].src);
+		app.drawLib.drawImage(ctx, self.images[self.currentImage], self.sourcePosition, self.sourceSizes[self.currentImage], self.position, self.size, self.angle);
 		
-		//}
+		//update the animation
+		//this.currentImage++;
+		
+		this.animationTimer++;
+		if(this.animationTimer > this.maxAnimationTime)
+		{
+			this.animationTimer = 0;
+			this.currentImage++;
+			if(this.currentImage > 3)
+			{
+				this.currentImage = 1;
+			}
+		}
 	};
 	
 	//update
@@ -69,8 +82,6 @@ app.Explosion = function() {
 		{
 			this.active = false;
 		}
-	
-		
 	};
 	
 	//input methods
