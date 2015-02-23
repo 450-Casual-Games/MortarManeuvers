@@ -223,24 +223,40 @@ app.Mortar_Maneuvers = {
 	
 	//handle player-collectable collision
 	collect: function(index) {
-		
+		this.collectibles[index].soundHandler.pickaxeSoundPlay();
 		this.collectibles.splice(index, 1);
 		this.numCollected++;
 		console.log("You collected an item, number collected: " + this.numCollected + " out of " + this.levels[this.currentLevelIndex].numCollectibles);
 		
 		if(this.numCollected == this.levels[this.currentLevelIndex].numCollectibles) {
-		console.log("Numcollectibles in level: " + this.levels[this.currentLevelIndex].numCollectibles);
+			console.log("Numcollectibles in level: " + this.levels[this.currentLevelIndex].numCollectibles);
+			this.pauseAllAudio();
 			this.currentState = this.GAME_STATE_ROUND_OVER;
 		}
 		
+	},
+	
+	pauseAllAudio: function() {
+		if(this.activeMortars.length > 0) {
+				for(var i = 0; i < this.activeMortars.length; i++) {
+					this.activeMortars[i].soundHandler.mortarSoundPause();
+				}
+			}
+		if(this.activeExplosions.length > 0) {
+			for(var i = 0; i < this.activeExplosions.length; i++) {
+				this.activeExplosions[i].soundHandler.explosionSoundPause();
+			}
+		}
 	},
 	
 	//handle player-explosion collision
 	kill: function() {
 		if(this.numLives > 0) {
 			this.numLives--;
+			this.pauseAllAudio();
 			this.reset();
 		} else {
+			this.pauseAllAudio();
 			this.currentState = this.GAME_STATE_GAME_OVER;
 			this.numLives = this.NUM_START_LIVES;
 		}
@@ -266,10 +282,13 @@ app.Mortar_Maneuvers = {
 		this.currentPrisoner = this.prisoners[this.currentPrisonerIndex];
 		this.currentPrisoner.gainFocus();
 		
+		
+		
 		//explosions
 		this.activeExplosions = [];
 		this.activeMortars = [];
 		
+
 		
 		// Collectibles
 		this.collectibles = [];
@@ -490,6 +509,7 @@ app.Mortar_Maneuvers = {
 				{
 					this.activeExplosions.push(this.makeNewExplosion(this.activeMortars[i].position));
 					//remove element from array
+					this.activeMortars[i].soundHandler.mortarSound.pause();
 					this.activeMortars.splice(i, 1);
 				}
 			}

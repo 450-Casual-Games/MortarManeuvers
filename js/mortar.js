@@ -28,6 +28,9 @@ app.Mortar = function() {
 		this.sourcePosition = new app.Vector(0,0);
 		this.sourceSize = new app.Vector(421,421);
 		
+		
+		this.soundHandler = new app.SoundHandler();
+		this.soundHandler.mortarSoundPlay();
 		//respawn variables
 		/*this.respawnTimer = 0;
 		this.timerStart = 50;*/

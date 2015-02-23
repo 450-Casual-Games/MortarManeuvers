@@ -24,7 +24,7 @@ app.Collectible = function() {
 		this.sourceSize = new app.Vector(144, 144);
 		
 		this.soundHandler = new app.SoundHandler();
-		this.soundHandler.pickaxeSoundPlay();
+		
 		//respawn variables
 		/*this.respawnTimer = 0;
 		this.timerStart = 50;*/

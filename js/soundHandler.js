@@ -37,13 +37,13 @@ app.SoundHandler = function() {
 	
 		//Pickaxe sound
 		this.pickaxeSound = new Audio('audio/pickaxe.mp3');  // Source: soundbible.com
-		this.pickaxeSound.volume = 0.5;
+		this.pickaxeSound.volume = 0.1;
 		
 		//Mortar sounds
 		this.explosionSound = new Audio('audio/explosion.mp3');  // Source: soundbible.com
-		this.explosionSound.volume = 0.2;
-		//this.mortarSound = new Audio('audio/mortar.mp3');  // Source: soundbible.com
-		//this.mortarSound.volume = 0.2;
+		this.explosionSound.volume = 0.1;
+		this.mortarSound = new Audio('audio/mortar.mp3');  // Source: soundbible.com
+		this.mortarSound.volume = 0.02;
 	};
 	
 	var s = SoundHandler.prototype;
@@ -73,6 +73,15 @@ app.SoundHandler = function() {
 	//Pause the explosion sound.
 	s.explosionSoundPause = function() {
 		this.explosionSound.pause();
+	};
+	
+		//Play the pickaxe sound.
+	s.mortarSoundPlay = function() {
+		this.mortarSound.play();
+	};
+	//Pause the pickaxe sound
+	s.mortarSoundPause = function() {
+		this.mortarSound.pause();
 	};
 
 	
