@@ -66,7 +66,7 @@ app.Mortar_Maneuvers = {
 	mortarIMG: undefined,
 	collectableIMG: undefined,
 	prisonerIMGs: undefined,
-	maxCooldown: 1,
+	//maxCooldown: 1,
 	currentCooldown: undefined,
 	
 	HUDHeight: undefined,
@@ -92,7 +92,7 @@ app.Mortar_Maneuvers = {
 		this.levels = [];
 		this.initLevels();
 		
-		this.currentCooldown = this.levels[this.currentLevelIndex].cooldown;
+		
 		this.numLives = this.NUM_START_LIVES;
 
 
@@ -121,21 +121,46 @@ app.Mortar_Maneuvers = {
 		this.levels[1] = {
 			cooldown: 2,
 			numCollectibles: 3,
-			maxDistance: 75,
+			maxDistance: 90,
 		}
 		this.levels[2] = {
-			cooldown: 1.5,
+			cooldown: 1.75,
 			numCollectibles: 5,
-			maxDistance: 50,
+			maxDistance: 80,
 		}
 		this.levels[3] = {
-			cooldown: 1,
+			cooldown: 1.5,
 			numCollectibles: 7,
-			maxDistance: 25,
+			maxDistance: 70,
 		}
 		this.levels[4] = {
-			cooldown: 0.5,
+			cooldown: 1.25,
 			numCollectibles: 9,
+			maxDistance: 60,
+		}
+		this.levels[5] = {
+			cooldown: 1.0,
+			numCollectibles: 11,
+			maxDistance: 50,
+		}
+		this.levels[6] = {
+			cooldown: 0.75,
+			numCollectibles: 13,
+			maxDistance: 40,
+		}
+		this.levels[7] = {
+			cooldown: 0.5,
+			numCollectibles: 15,
+			maxDistance: 30,
+		}
+		this.levels[8] = {
+			cooldown: 0.25,
+			numCollectibles: 17,
+			maxDistance: 20,
+		}
+		this.levels[9] = {
+			cooldown: 0,
+			numCollectibles: 19,
 			maxDistance: 10,
 		}
 	},
@@ -173,7 +198,7 @@ app.Mortar_Maneuvers = {
 		console.log("You collected an item, number collected: " + this.numCollected + " out of " + this.levels[this.currentLevelIndex].numCollectibles);
 		
 		if(this.numCollected == this.levels[this.currentLevelIndex].numCollectibles) {
-		console.log("numcollecitbles in level: " + this.levels[this.currentLevelIndex].numCollectibles);
+		console.log("Numcollectibles in level: " + this.levels[this.currentLevelIndex].numCollectibles);
 			this.currentState = this.GAME_STATE_ROUND_OVER;
 		}
 		
@@ -193,7 +218,7 @@ app.Mortar_Maneuvers = {
 	reset: function() {
 		this.numCollected = 0;
 		// mortar cooldown time reset
-		
+		this.currentCooldown = this.levels[this.currentLevelIndex].cooldown;
 		//prisoners
 		this.prisoners = [];
 		
@@ -217,7 +242,7 @@ app.Mortar_Maneuvers = {
 		
 		// Collectibles
 		this.collectibles = [];
-		for(var i = 0; i < this.levels[this.currentLevelIndex].numCollectibles; i ++) {
+		for(var i = 0; i < this.levels[this.currentLevelIndex].numCollectibles; i++) {
 			this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(this.screenWInfo.x+(this.collectibleSize/2), this.screenWInfo.y-(this.collectibleSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.collectibleSize/2), this.screenHInfo.y-(this.collectibleSize/2)), this.collectibleSize));
 		}
 		this.inactiveCollectibles = [];
@@ -237,11 +262,11 @@ app.Mortar_Maneuvers = {
 		//this.drawText("Total Score: " + totalScore, CANVAS_WIDTH - 200, 20, 16, "#ddd");
 		
 		if(this.currentState == this.GAME_STATE_PLAY) {
-			this.drawText("Pickaxes: " + this.numCollected + "/" + this.NUM_COLLECTIBLES_LEVEL_ONE + "   |   " + "Lives Remaining: " + this.numLives + "   |   " + "Round: " + this.currentLevelIndex, 50, 30, 16, "#E6E6E6");
+			this.drawText("Pickaxes: " + this.numCollected + "/" + this.levels[this.currentLevelIndex].numCollectibles + "   |   " + "Lives Remaining: " + this.numLives + "   |   " + "Round: " + this.currentLevelIndex, 50, 30, 16, "#E6E6E6");
 		}
 		
 		if(this.currentState == this.GAME_STATE_MENU) {
-			
+			console.log("I just got called");
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
@@ -251,15 +276,14 @@ app.Mortar_Maneuvers = {
 		} // end if
 		
 		if(this.currentState == this.GAME_STATE_ROUND_OVER) {
+			
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
-			this.drawText("Round Completed", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 30, "#FFFF66");
+			this.drawText("Round Completed!", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 30, "#FFFF66");
 			this.drawText("Click to continue", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#FFFF66");
-			this.drawText("Next round there are " + this.numCollectibles[this.currentLevelIndex] + " pickaxes", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#E6E6E6");
+			this.drawText("Next round there are " + this.levels[this.currentLevelIndex+1].numCollectibles + " pickaxe(s)", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#E6E6E6");
 			this.ctx.restore();
-			
-			//this.numLives = this.NUM_START_LIVES;
 		}
 		
 		if(this.currentState == this.GAME_STATE_GAME_OVER) {
@@ -373,6 +397,13 @@ app.Mortar_Maneuvers = {
 			return;
 		}
 		if(mm.currentState == mm.GAME_STATE_GAME_OVER) {
+			mm.currentLevelIndex = 1;
+			mm.currentState = mm.GAME_STATE_PLAY;
+			mm.reset();
+			return;
+		}
+		if(mm.currentState == mm.GAME_STATE_ROUND_OVER) {
+			mm.currentLevelIndex++;
 			mm.currentState = mm.GAME_STATE_PLAY;
 			mm.reset();
 			return;
@@ -384,7 +415,7 @@ app.Mortar_Maneuvers = {
 	
 	update: function() {
 		requestAnimationFrame(this.update.bind(this));
-		if(this.currentState == this.GAME_STATE_MENU || this.currentState == this.GAME_STATE_GAME_OVER) {
+		if(this.currentState == this.GAME_STATE_MENU || this.currentState == this.GAME_STATE_GAME_OVER || this.currentState == this.GAME_STATE_ROUND_OVER) {
 			this.ctx.fillStyle = "black";
 			this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
 		}
