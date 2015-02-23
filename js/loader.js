@@ -32,6 +32,11 @@ app.IMAGES = {
 	prisoner4: "images/Prisoner4.png",
 	reticleArrows: "images/ReticleArrows.png",
 	reticleCircle: "images/ReticleCircle.png",
+	hat: "images/Hat.png",
+	explosion1: "images/Explosion1.png",
+	explosion2: "images/Explosion2.png",
+	explosion3: "images/Explosion3.png",
+	explosion4: "images/Explosion4.png",
 	//instructions: "images/instructions.png",
 };
 
@@ -75,6 +80,11 @@ window.onload = function(){
 		{id: "prisoner4", src: "images/Prisoner4.png"},
 		{id: "reticleArrows", src: "images/ReticleArrows.png"},
 		{id: "reticleCircle" , src: "images/ReticleCircle.png"},
+		{id: "hat", src: "images/Hat.png"},
+		{id: "explosion1", src: "images/Explosion1.png"},
+		{id: "explosion2", src: "images/Explosion2.png"},
+		{id: "explosion3", src: "images/Explosion3.png"},
+		{id: "explosion4", src: "images/Explosion4.png"},
 	]);
 	
 	app.Mortar_Maneuvers.init();

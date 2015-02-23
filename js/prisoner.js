@@ -10,7 +10,7 @@ var app = app || {};
 
 // the 'ship' object literal is now a property of our 'app' global variable
 app.Prisoner = function() {
-	function Prisoner(img, x, y, width, height, screenWInfo, screenHInfo, chainLength, angle) {
+	function Prisoner(img, hatImg, x, y, width, height, screenWInfo, screenHInfo, chainLength, angle) {
 		//instance variables of the prisoner
 		this.position = new app.Vector(x,y);
 		this.angle = angle;
@@ -46,6 +46,12 @@ app.Prisoner = function() {
 		this.sourcePosition = new app.Vector(0,0);
 		this.sourceSize = new app.Vector(200,107);
 		
+		this.hatImage = hatImg;
+		this.hatSize = new app.Vector(25,35);
+		this.hatSourcePos = new app.Vector(0,0);
+		this.hatSourceSize = new app.Vector(106,139);
+		
+		
 		//respawn variables
 		this.respawnTimer = 0;
 		this.timerStart = 50;
@@ -69,6 +75,10 @@ app.Prisoner = function() {
 			{
 				var self = this;
 				app.drawLib.drawImage(ctx, self.image, self.sourcePosition, self.sourceSize, self.position, self.size, self.angle);
+				if(this.isActive)
+				{
+					app.drawLib.drawImage(ctx, self.hatImage, self.hatSourcePos, self.hatSourceSize, self.position, self.hatSize, self.angle);
+				}
 			}
 		
 		//}
