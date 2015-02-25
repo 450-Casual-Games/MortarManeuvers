@@ -51,7 +51,6 @@ app.Explosion = function() {
 	
 	p.draw = function( ctx) {
 		var self = this;
-		console.log("Source: " + self.images[self.currentImage].src);
 		app.drawLib.drawImage(ctx, self.images[self.currentImage], self.sourcePosition, self.sourceSizes[self.currentImage], self.position, self.size, self.angle);
 		
 		//update the animation
