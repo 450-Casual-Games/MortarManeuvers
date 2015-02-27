@@ -25,8 +25,9 @@ app.Mortar_Maneuvers = {
 	GAME_STATE_MENU: 0,
 	GAME_STATE_PLAY: 1,
 	GAME_STATE_ROUND_OVER: 2,
-	GAME_STATE_GAME_OVER: 3,
-	GAME_STATE_PAUSE: 4,
+	GAME_STATE_ROUND_REPEAT: 3,
+	GAME_STATE_GAME_OVER: 4,
+	GAME_STATE_PAUSE: 5,
 		
 	//properties
     canvas: undefined,
@@ -82,6 +83,9 @@ app.Mortar_Maneuvers = {
 	
 	soundHandler: undefined,
 	
+	totalScore: 0,
+	roundScore: 0,
+	
     // methods
 	init: function() {
 		console.log("Init called");
@@ -126,54 +130,104 @@ app.Mortar_Maneuvers = {
 	
 	initLevels: function() {
 		this.levels[0] = {
-			cooldown: 3,
+			cooldown: 100,
 			numCollectibles: 1,
 			maxDistance: 100,
 		}
 		this.levels[1] = {
 			cooldown: 2,
 			numCollectibles: 3,
-			maxDistance: 90,
+			maxDistance: 97.5,
 		}
 		this.levels[2] = {
-			cooldown: 1.75,
+			cooldown: 1.95,
 			numCollectibles: 5,
-			maxDistance: 80,
+			maxDistance: 95,
 		}
 		this.levels[3] = {
-			cooldown: 1.5,
+			cooldown: 1.90,
 			numCollectibles: 7,
-			maxDistance: 70,
+			maxDistance: 92.5,
 		}
 		this.levels[4] = {
-			cooldown: 1.25,
+			cooldown: 1.85,
 			numCollectibles: 9,
-			maxDistance: 60,
+			maxDistance: 90,
 		}
 		this.levels[5] = {
-			cooldown: 1.0,
+			cooldown: 1.80,
 			numCollectibles: 11,
-			maxDistance: 50,
+			maxDistance: 87.5,
 		}
 		this.levels[6] = {
-			cooldown: 0.75,
+			cooldown: 1.75,
 			numCollectibles: 13,
-			maxDistance: 40,
+			maxDistance: 85,
 		}
 		this.levels[7] = {
-			cooldown: 0.5,
+			cooldown: 1.7,
 			numCollectibles: 15,
-			maxDistance: 30,
+			maxDistance: 82.5,
 		}
 		this.levels[8] = {
-			cooldown: 0.25,
+			cooldown: 1.65,
 			numCollectibles: 17,
-			maxDistance: 20,
+			maxDistance: 80,
 		}
 		this.levels[9] = {
-			cooldown: 0,
+			cooldown: 1.6,
 			numCollectibles: 19,
-			maxDistance: 10,
+			maxDistance: 77.5,
+		}
+		this.levels[10] = {
+			cooldown: 1.55,
+			numCollectibles: 21,
+			maxDistance: 75,
+		}
+		this.levels[11] = {
+			cooldown: 1.5,
+			numCollectibles: 23,
+			maxDistance: 72.5,
+		}
+		this.levels[12] = {
+			cooldown: 1.45,
+			numCollectibles: 25,
+			maxDistance: 70,
+		}
+		this.levels[13] = {
+			cooldown: 1.4,
+			numCollectibles: 27,
+			maxDistance: 67.5,
+		}
+		this.levels[14] = {
+			cooldown: 1.35,
+			numCollectibles: 29,
+			maxDistance: 65,
+		}
+		this.levels[15] = {
+			cooldown: 1.3,
+			numCollectibles: 31,
+			maxDistance: 62.5,
+		}
+		this.levels[16] = {
+			cooldown: 1.25,
+			numCollectibles: 33,
+			maxDistance: 60,
+		}
+		this.levels[17] = {
+			cooldown: 1.2,
+			numCollectibles: 35,
+			maxDistance: 57.5,
+		}
+		this.levels[18] = {
+			cooldown: 1.15,
+			numCollectibles: 37,
+			maxDistance: 55,
+		}
+		this.levels[19] = {
+			cooldown: 1.1,
+			numCollectibles: 39,
+			maxDistance: 52.5,
 		}
 	},
 	
@@ -226,12 +280,16 @@ app.Mortar_Maneuvers = {
 		this.collectibles[index].soundHandler.pickaxeSoundPlay();
 		this.collectibles.splice(index, 1);
 		this.numCollected++;
+		this.roundScore += 100;
 		console.log("You collected an item, number collected: " + this.numCollected + " out of " + this.levels[this.currentLevelIndex].numCollectibles);
 		
 		if(this.numCollected == this.levels[this.currentLevelIndex].numCollectibles) {
 			console.log("Numcollectibles in level: " + this.levels[this.currentLevelIndex].numCollectibles);
 			this.pauseAllAudio();
+			this.totalScore += this.roundScore;
+			this.roundScore = 0;
 			this.currentState = this.GAME_STATE_ROUND_OVER;
+
 		}
 		
 	},
@@ -254,9 +312,12 @@ app.Mortar_Maneuvers = {
 		if(this.numLives > 0) {
 			this.numLives--;
 			this.pauseAllAudio();
-			this.reset();
+			this.roundScore = 0;
+			this.currentState = this.GAME_STATE_ROUND_REPEAT;
 		} else {
 			this.pauseAllAudio();
+			this.roundScore = 0;
+			this.totalScore = 0;
 			this.currentState = this.GAME_STATE_GAME_OVER;
 			this.numLives = this.NUM_START_LIVES;
 		}
@@ -319,19 +380,30 @@ app.Mortar_Maneuvers = {
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
-			this.drawText("MORTAR MANEUVERS", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/4, 50, "#E0E900");
+			this.drawText("MORTAR MANEUVERS", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/4 + 20, 50, "#E0E900");
 			this.drawText("Click the mouse to begin playing.", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#E6E6E6");
 			this.ctx.restore();
 		} // end if
 		
 		if(this.currentState == this.GAME_STATE_ROUND_OVER) {
-			
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
 			this.drawText("Round Completed!", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 30, "#FFFF66");
-			this.drawText("Click to continue", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#FFFF66");
+			this.drawText("Current Score: " + this.totalScore, this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#FFFFFF");
+			
 			this.drawText("Next round there are " + this.levels[this.currentLevelIndex+1].numCollectibles + " pickaxe(s)", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#E6E6E6");
+			this.drawText("Click to continue", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 + 70, 30, "#FFFF66");
+			this.ctx.restore();
+		}
+		
+		if(this.currentState == this.GAME_STATE_ROUND_REPEAT) {
+			this.ctx.save();
+			this.ctx.textAlign = "center";
+			this.ctx.textBaseline = "middle";
+			this.drawText("Round Failed!", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 20, 30, "#FFFF66");
+			this.drawText("This round there are " + this.levels[this.currentLevelIndex+1].numCollectibles + " pickaxe(s)", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 15, 24, "#E6E6E6");
+			this.drawText("Click to try again", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 + 50, 30, "#FFFF66");
 			this.ctx.restore();
 		}
 		
@@ -457,6 +529,12 @@ app.Mortar_Maneuvers = {
 			mm.reset();
 			return;
 		}
+		if(mm.currentState == mm.GAME_STATE_ROUND_REPEAT) {
+			mm.currentState = mm.GAME_STATE_PLAY;
+			mm.reset();
+			return;
+		}
+		
 		
 		//var mouse = getMouse(e);
 		//console.log("(mouse.x, mouse.y)=" + mouse.x + "," + mouse.y);
@@ -464,7 +542,7 @@ app.Mortar_Maneuvers = {
 	
 	update: function() {
 		requestAnimationFrame(this.update.bind(this));
-		if(this.currentState == this.GAME_STATE_MENU || this.currentState == this.GAME_STATE_GAME_OVER || this.currentState == this.GAME_STATE_ROUND_OVER) {
+		if(this.currentState == this.GAME_STATE_MENU || this.currentState == this.GAME_STATE_GAME_OVER || this.currentState == this.GAME_STATE_ROUND_OVER || this.currentState == this.GAME_STATE_ROUND_REPEAT) {
 			this.ctx.fillStyle = "black";
 			this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
 		}
