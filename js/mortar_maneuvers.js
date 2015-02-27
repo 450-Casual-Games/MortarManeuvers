@@ -550,8 +550,17 @@ app.Mortar_Maneuvers = {
 			//draw the chain from the prisoner to the next one
 			if(i < this.prisoners.length - 1)
 			{
+				var distance = this.prisoners[i].position.distance(this.prisoners[i+1].position);
+				var percentage= distance / this.levels[this.currentLevelIndex].maxDistance;
+				var r = 0;
+				
+				if(percentage > .75)
+				{
+					r = Math.round(percentage * 255);
+				}
+				
 				//drawLine(ctx, color, weight, pos1, pos2)
-				app.drawLib.drawLine(this.ctx, "black", 3, this.prisoners[i].position, this.prisoners[i+1].position);
+				app.drawLib.drawLine(this.ctx, 'rgb(' +r+ ',0,0)', 3, this.prisoners[i].position, this.prisoners[i+1].position);
 			}
 			
 			this.prisoners[i].draw(this.ctx);
