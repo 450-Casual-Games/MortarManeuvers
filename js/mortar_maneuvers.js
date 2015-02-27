@@ -25,8 +25,9 @@ app.Mortar_Maneuvers = {
 	GAME_STATE_MENU: 0,
 	GAME_STATE_PLAY: 1,
 	GAME_STATE_ROUND_OVER: 2,
-	GAME_STATE_GAME_OVER: 3,
-	GAME_STATE_PAUSE: 4,
+	GAME_STATE_ROUND_REPEAT: 3,
+	GAME_STATE_GAME_OVER: 4,
+	GAME_STATE_PAUSE: 5,
 		
 	//properties
     canvas: undefined,
@@ -312,7 +313,7 @@ app.Mortar_Maneuvers = {
 			this.numLives--;
 			this.pauseAllAudio();
 			this.roundScore = 0;
-			this.reset();
+			this.currentState = this.GAME_STATE_ROUND_REPEAT;
 		} else {
 			this.pauseAllAudio();
 			this.roundScore = 0;
@@ -379,13 +380,12 @@ app.Mortar_Maneuvers = {
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
-			this.drawText("MORTAR MANEUVERS", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/4, 50, "#E0E900");
+			this.drawText("MORTAR MANEUVERS", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/4 + 20, 50, "#E0E900");
 			this.drawText("Click the mouse to begin playing.", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#E6E6E6");
 			this.ctx.restore();
 		} // end if
 		
 		if(this.currentState == this.GAME_STATE_ROUND_OVER) {
-			
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
@@ -394,6 +394,16 @@ app.Mortar_Maneuvers = {
 			
 			this.drawText("Next round there are " + this.levels[this.currentLevelIndex+1].numCollectibles + " pickaxe(s)", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#E6E6E6");
 			this.drawText("Click to continue", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 + 70, 30, "#FFFF66");
+			this.ctx.restore();
+		}
+		
+		if(this.currentState == this.GAME_STATE_ROUND_REPEAT) {
+			this.ctx.save();
+			this.ctx.textAlign = "center";
+			this.ctx.textBaseline = "middle";
+			this.drawText("Round Failed!", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 20, 30, "#FFFF66");
+			this.drawText("This round there are " + this.levels[this.currentLevelIndex+1].numCollectibles + " pickaxe(s)", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 15, 24, "#E6E6E6");
+			this.drawText("Click to try again", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 + 50, 30, "#FFFF66");
 			this.ctx.restore();
 		}
 		
@@ -519,6 +529,12 @@ app.Mortar_Maneuvers = {
 			mm.reset();
 			return;
 		}
+		if(mm.currentState == mm.GAME_STATE_ROUND_REPEAT) {
+			mm.currentState = mm.GAME_STATE_PLAY;
+			mm.reset();
+			return;
+		}
+		
 		
 		//var mouse = getMouse(e);
 		//console.log("(mouse.x, mouse.y)=" + mouse.x + "," + mouse.y);
@@ -526,7 +542,7 @@ app.Mortar_Maneuvers = {
 	
 	update: function() {
 		requestAnimationFrame(this.update.bind(this));
-		if(this.currentState == this.GAME_STATE_MENU || this.currentState == this.GAME_STATE_GAME_OVER || this.currentState == this.GAME_STATE_ROUND_OVER) {
+		if(this.currentState == this.GAME_STATE_MENU || this.currentState == this.GAME_STATE_GAME_OVER || this.currentState == this.GAME_STATE_ROUND_OVER || this.currentState == this.GAME_STATE_ROUND_REPEAT) {
 			this.ctx.fillStyle = "black";
 			this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
 		}
