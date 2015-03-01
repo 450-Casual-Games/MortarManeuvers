@@ -20,7 +20,7 @@ app.Mortar_Maneuvers = {
     CANVAS_HEIGHT: 480,
 	NUM_COLLECTIBLES_LEVEL_ONE: 3,
 	NUM_COLLECTIBLES_LEVEL_TWO: 5,
-	NUM_START_LIVES: 5,
+	NUM_START_LIVES: 0,
 	
 	GAME_STATE_MENU: 0,
 	GAME_STATE_PLAY: 1,
@@ -85,6 +85,7 @@ app.Mortar_Maneuvers = {
 	
 	totalScore: 0,
 	roundScore: 0,
+	highScores: undefined,
 	
     // methods
 	init: function() {
@@ -105,6 +106,9 @@ app.Mortar_Maneuvers = {
 		this.levels = [];
 		this.initLevels();
 		
+		this.highScores = [];
+		localStorage.setItem("score", "5");
+		console.log(localStorage.getItem("score"));
 		
 		this.numLives = this.NUM_START_LIVES;
 
@@ -294,6 +298,35 @@ app.Mortar_Maneuvers = {
 		
 	},
 	
+	storeHighScore: function() {
+		if(localStorage.getItem("highScores") != null) {
+			var tempScoreArray = JSON.parse(localStorage.getItem("highScores"));
+			tempScoreArray.push(this.totalScore);
+			tempScoreArray.sort(function(a,b){return b-a});
+			
+			while(tempScoreArray.length > 5) {
+				tempScoreArray.pop();
+			}
+			
+			localStorage.setItem("highScores", JSON.stringify(tempScoreArray));
+		} else {
+			var tempScoreArray = [];
+			tempScoreArray.push(this.totalScore);
+			localStorage.setItem("highScores", JSON.stringify(tempScoreArray));
+		}
+	},
+	
+	getHighScores: function() {
+		var scoreArray = JSON.parse(localStorage.getItem("highScores"));
+		return scoreArray;
+	},
+	
+	writeScores: function(scoreArray, scorePos) {
+		for(var i = 0; i < scoreArray.length; i++) {
+			this.drawText("Score #" + (i+1) + ": " + scoreArray[i], scorePos.x, scorePos.y + (25*i), 25, "white");
+		}
+	},
+	
 	pauseAllAudio: function() {
 		if(this.activeMortars.length > 0) {
 				for(var i = 0; i < this.activeMortars.length; i++) {
@@ -316,8 +349,10 @@ app.Mortar_Maneuvers = {
 			this.currentState = this.GAME_STATE_ROUND_REPEAT;
 		} else {
 			this.pauseAllAudio();
+			this.storeHighScore();
 			this.roundScore = 0;
 			this.totalScore = 0;
+			
 			this.currentState = this.GAME_STATE_GAME_OVER;
 			this.numLives = this.NUM_START_LIVES;
 		}
@@ -391,7 +426,6 @@ app.Mortar_Maneuvers = {
 			this.ctx.textBaseline = "middle";
 			this.drawText("Round Completed!", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 30, "#FFFF66");
 			this.drawText("Current Score: " + this.totalScore, this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#FFFFFF");
-			
 			this.drawText("Next round there are " + this.levels[this.currentLevelIndex+1].numCollectibles + " pickaxe(s)", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#E6E6E6");
 			this.drawText("Click to continue", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 + 70, 30, "#FFFF66");
 			this.ctx.restore();
@@ -411,10 +445,15 @@ app.Mortar_Maneuvers = {
 			this.ctx.save();
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
-			this.drawText("Game Over", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 30,	 "#FF6600");
-			this.drawText("Click to respawn", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#E6E6E6");
+			this.drawText("Game Over", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/4 - 40, 30, "red");
+			this.drawText("Highscores:", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 100, 30, "#FF6600");
+			if(localStorage.getItem("highScores") != null) {
+				var scoreArray = this.getHighScores();
+				this.writeScores(scoreArray, new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 50));
+			}
+			this.drawText("Click to respawn", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 + 120, 30, "#E6E6E6");
 			this.ctx.restore();
-		} // end if
+		}
 		
 		if(this.currentState == this.GAME_STATE_PAUSE) {
 			this.ctx.save();
