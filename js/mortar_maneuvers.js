@@ -396,19 +396,14 @@ app.Mortar_Maneuvers = {
 	},
 	
 	drawText: function(string, x, y, size, color) {
-		this.ctx.font = 'bold '+size+'px Monospace';
+		this.ctx.font = size+'px Black Ops One';
 		this.ctx.fillStyle = color;
 		this.ctx.fillText(string, x, y);
 	},
 	
 	drawHUD: function() {
-		// draw score
-		// drawText(string, x, y, size, color)
-		
-		//this.drawText("Total Score: " + totalScore, CANVAS_WIDTH - 200, 20, 16, "#ddd");
-		
 		if(this.currentState == this.GAME_STATE_PLAY) {
-			this.drawText("Pickaxes: " + this.numCollected + "/" + this.levels[this.currentLevelIndex].numCollectibles + "   |   " + "Lives Remaining: " + this.numLives + "   |   " + "Round: " + this.currentLevelIndex, 50, 30, 16, "#E6E6E6");
+			this.drawText("Pickaxes: " + this.numCollected + "/" + this.levels[this.currentLevelIndex].numCollectibles + "      |      " + "Lives Remaining: " + this.numLives + "      |      " + "Round: " + this.currentLevelIndex, 50, 30, 16, "#E6E6E6");
 		}
 		
 		if(this.currentState == this.GAME_STATE_MENU) {
@@ -460,14 +455,12 @@ app.Mortar_Maneuvers = {
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
 			this.drawText("Game Over", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2 - 40, 34,	 "#ddd");
-			//this.drawText("Your final score was " + totalScore, CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 34, "red");
 			this.drawText("Click to play again", this.CANVAS_WIDTH/2 , this.CANVAS_HEIGHT/2 + 35, 24, "#ddd");
 			this.ctx.restore();
 		}
-	}, // end function
+	},
 	
 	checkForCollisions: function() {
-		//var self = this;
 		if(this.currentState == this.GAME_STATE_PLAY) {
 			for(var i = 0; i < this.prisoners.length; i++) {
 				for(var j = 0; j < this.collectibles.length; j++) {
@@ -479,7 +472,7 @@ app.Mortar_Maneuvers = {
 				for(var k = 0; k < this.activeExplosions.length; k++) {
 					if(app.utilities.collides(this.prisoners[i], this.activeExplosions[k])) {
 						//collision stuff
-						this.kill(k);
+						this.kill();
 					}
 				}
 			}
