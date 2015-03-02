@@ -109,8 +109,6 @@ app.Mortar_Maneuvers = {
 		this.currentLevel = this.levels[this.currentLevelIndex];
 		
 		this.highScores = [];
-		localStorage.setItem("score", "5");
-		console.log(localStorage.getItem("score"));
 		
 		this.numLives = this.NUM_START_LIVES;
 
@@ -160,7 +158,7 @@ app.Mortar_Maneuvers = {
 			tutorial: true,
 			collectablePos: new app.Vector(this.screenWInfo.y - 50, this.screenHInfo.x + 50),
 			tutorialMortarNeeded: true,
-			tutorialMortarPos: new app.Vector(this.screenWInfo.y - 50, this.screenHInfo.x + 50),
+			tutorialMortarPos: new app.Vector(this.screenWInfo.y - 40, this.screenHInfo.x + 40),
 		}
 		this.levels[3] = {
 			cooldown: 3,
@@ -350,10 +348,8 @@ app.Mortar_Maneuvers = {
 		{
 			this.roundScore += 100;
 		}
-		console.log("You collected an item, number collected: " + this.numCollected + " out of " + this.levels[this.currentLevelIndex].numCollectibles);
 		
 		if(this.numCollected == this.levels[this.currentLevelIndex].numCollectibles) {
-			console.log("Numcollectibles in level: " + this.levels[this.currentLevelIndex].numCollectibles);
 			this.pauseAllAudio();
 			if(this.currentLevel.tutorial != true)
 			{
@@ -490,7 +486,6 @@ app.Mortar_Maneuvers = {
 			this.ctx.textBaseline = "middle";
 			this.drawText("MORTAR MANEUVERS", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/4 + 20, 50, "#E0E900");
 			this.drawText("Click the mouse to begin playing.", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#E6E6E6");
-			console.log(this.activeMortars.length);
 			this.ctx.restore();
 		} // end if
 		
@@ -772,6 +767,11 @@ app.Mortar_Maneuvers = {
 			this.currentLevel.tutorialPrisoner.draw(this.ctx);
 		}
 		
+		// Draw the collectibles
+		for(var i = 0; i < this.collectibles.length; i++) {
+			this.collectibles[i].draw(this.ctx);
+		}
+		
 		//draw mortars
 		for(var i = 0; i < this.activeMortars.length; i++) {
 			this.activeMortars[i].draw(this.ctx);
@@ -783,10 +783,7 @@ app.Mortar_Maneuvers = {
 			this.activeExplosions[i].draw(this.ctx);
 		}
 		
-		// Draw the collectibles
-		for(var i = 0; i < this.collectibles.length; i++) {
-			this.collectibles[i].draw(this.ctx);
-		}
+		
 	},
 	
 	//calculate the change in time
