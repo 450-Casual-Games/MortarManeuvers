@@ -31,9 +31,8 @@ app.SoundHandler = function() {
 	//constructor for the vector class
 	function SoundHandler() {
 		//Background music
-		//this.backgroundMusic = new Audio('audio/background.mp3');// source: freemusicarchive.org
-		//this.backgroundMusic.loop = true;
-		//this.backgroundMusic.volume = 0.2;
+		this.backgroundMusic = new Audio('audio/background.mp3');// source: freeplaymusic.com
+		this.backgroundMusic.loop = true;
 	
 		//Pickaxe sound
 		this.pickaxeSound = new Audio('audio/pickaxe.mp3');  // Source: soundbible.com
