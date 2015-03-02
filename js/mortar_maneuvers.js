@@ -36,7 +36,6 @@ app.Mortar_Maneuvers = {
 	utilities: undefined,
 	buttons: undefined,
 	escapePressed: undefined,
-	//gameState: undefined,
 	currentState: undefined,
 	animationID: undefined,
 	screenHeight: undefined,
@@ -58,12 +57,12 @@ app.Mortar_Maneuvers = {
 	numPrisoners: 2,
 	roundNumber: 1,
 	
-	
 	collectibleSize: 30,
 	mortarSize: 60,
 	
 	levels: undefined,
 	currentLevelIndex: 0,
+	currentLevel: undefined,
 	playedTutorial: false,
 
 	numLives: undefined,
@@ -96,15 +95,18 @@ app.Mortar_Maneuvers = {
 		this.canvas.height = this.CANVAS_HEIGHT;
 		this.ctx = this.canvas.getContext('2d');
 		
-		//this.screenWidth = this.CANVAS_WIDTH - 10;
-		//this.screenHeight = this.CANVAS_HEIGHT - 10;
-		
 		this.HUDHeight = 50;
 		
 		this.screenWInfo = new app.Vector(0, this.CANVAS_WIDTH);
 		this.screenHInfo = new app.Vector(this.HUDHeight, this.CANVAS_HEIGHT);
+		
+		this.prisonerIMGs = [];
+		this.explosionIMGs = [];
+		this.loadImages();
+		
 		this.levels = [];
 		this.initLevels();
+		this.currentLevel = this.levels[this.currentLevelIndex];
 		
 		this.highScores = [];
 		localStorage.setItem("score", "5");
@@ -119,9 +121,6 @@ app.Mortar_Maneuvers = {
 		
 		this.currentState = 0;
 		
-		this.prisonerIMGs = [];
-		this.explosionIMGs = [];
-		this.loadImages();
 		
 		this.reset();
 		
@@ -134,104 +133,167 @@ app.Mortar_Maneuvers = {
 	
 	initLevels: function() {
 		this.levels[0] = {
-			cooldown: 100,
+			cooldown: Number.MAX_SAFE_INTEGER,
 			numCollectibles: 1,
 			maxDistance: 100,
+			tutorial: true,
+			startPos: new app.Vector(this.screenWInfo.x + 50, this.screenHInfo.y - 50),
+			collectablePos: new app.Vector(this.screenWInfo.y - 50, this.screenHInfo.x + 50),
+			
 		}
 		this.levels[1] = {
-			cooldown: 2,
-			numCollectibles: 3,
-			maxDistance: 97.5,
+			cooldown: Number.MAX_SAFE_INTEGER,
+			numCollectibles: 1,
+			maxDistance: 100,
+			startPos: new app.Vector(this.screenWInfo.y - 50, this.screenHInfo.x + 50),
+			tutorial: true,
+			collectablePos: new app.Vector(this.screenWInfo.x + 50, this.screenHInfo.y - 50),
+			tutorialPrisoner: new app.Prisoner(this.prisonerIMGs[0], this.hatIMG, this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 40, 20, this.screenWInfo, this.screenHInfo, 100, 0),
+			tutorialMortarNeeded: true,
+			tutorialMortarPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
 		}
 		this.levels[2] = {
-			cooldown: 1.95,
-			numCollectibles: 5,
-			maxDistance: 95,
+			cooldown: Number.MAX_SAFE_INTEGER,
+			numCollectibles: 1,
+			maxDistance: 100,
+			startPos: new app.Vector(this.screenWInfo.x + 50, this.screenHInfo.y - 50),
+			tutorial: true,
+			collectablePos: new app.Vector(this.screenWInfo.y - 50, this.screenHInfo.x + 50),
+			tutorialMortarNeeded: true,
+			tutorialMortarPos: new app.Vector(this.screenWInfo.y - 50, this.screenHInfo.x + 50),
 		}
 		this.levels[3] = {
-			cooldown: 1.90,
-			numCollectibles: 7,
-			maxDistance: 92.5,
+			cooldown: 3,
+			numCollectibles: 3,
+			maxDistance: 97.5,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
 		this.levels[4] = {
-			cooldown: 1.85,
-			numCollectibles: 9,
-			maxDistance: 90,
+			cooldown: 2.80,
+			numCollectibles: 5,
+			maxDistance: 95,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
 		this.levels[5] = {
-			cooldown: 1.80,
-			numCollectibles: 11,
-			maxDistance: 87.5,
+			cooldown: 2.60,
+			numCollectibles: 7,
+			maxDistance: 92.5,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
 		this.levels[6] = {
-			cooldown: 1.75,
-			numCollectibles: 13,
-			maxDistance: 85,
+			cooldown: 2.40,
+			numCollectibles: 9,
+			maxDistance: 90,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
 		this.levels[7] = {
-			cooldown: 1.7,
-			numCollectibles: 15,
-			maxDistance: 82.5,
+			cooldown: 2.20,
+			numCollectibles: 11,
+			maxDistance: 87.5,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
 		this.levels[8] = {
-			cooldown: 1.65,
-			numCollectibles: 17,
-			maxDistance: 80,
+			cooldown: 2.00,
+			numCollectibles: 13,
+			maxDistance: 85,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
 		this.levels[9] = {
+			cooldown: 1.85,
+			numCollectibles: 15,
+			maxDistance: 82.5,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
+		}
+		this.levels[10] = {
+			cooldown: 1.70,
+			numCollectibles: 17,
+			maxDistance: 80,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
+		}
+		this.levels[11] = {
 			cooldown: 1.6,
 			numCollectibles: 19,
 			maxDistance: 77.5,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
-		this.levels[10] = {
+		this.levels[12] = {
 			cooldown: 1.55,
 			numCollectibles: 21,
 			maxDistance: 75,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
-		this.levels[11] = {
+		this.levels[13] = {
 			cooldown: 1.5,
 			numCollectibles: 23,
 			maxDistance: 72.5,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
-		this.levels[12] = {
+		this.levels[14] = {
 			cooldown: 1.45,
 			numCollectibles: 25,
 			maxDistance: 70,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
-		this.levels[13] = {
+		this.levels[15] = {
 			cooldown: 1.4,
 			numCollectibles: 27,
 			maxDistance: 67.5,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
-		this.levels[14] = {
+		this.levels[16] = {
 			cooldown: 1.35,
 			numCollectibles: 29,
 			maxDistance: 65,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
-		this.levels[15] = {
+		this.levels[17] = {
 			cooldown: 1.3,
 			numCollectibles: 31,
 			maxDistance: 62.5,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
-		this.levels[16] = {
+		this.levels[18] = {
 			cooldown: 1.25,
 			numCollectibles: 33,
 			maxDistance: 60,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
-		this.levels[17] = {
+		this.levels[19] = {
 			cooldown: 1.2,
 			numCollectibles: 35,
 			maxDistance: 57.5,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
-		this.levels[18] = {
+		this.levels[20] = {
 			cooldown: 1.15,
 			numCollectibles: 37,
 			maxDistance: 55,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
-		this.levels[19] = {
+		this.levels[21] = {
 			cooldown: 1.1,
 			numCollectibles: 39,
 			maxDistance: 52.5,
+			startPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			tutorial: false,
 		}
 	},
 	
@@ -284,14 +346,20 @@ app.Mortar_Maneuvers = {
 		this.collectibles[index].soundHandler.pickaxeSoundPlay();
 		this.collectibles.splice(index, 1);
 		this.numCollected++;
-		this.roundScore += 100;
+		if(this.currentLevel.tutorial != true)
+		{
+			this.roundScore += 100;
+		}
 		console.log("You collected an item, number collected: " + this.numCollected + " out of " + this.levels[this.currentLevelIndex].numCollectibles);
 		
 		if(this.numCollected == this.levels[this.currentLevelIndex].numCollectibles) {
 			console.log("Numcollectibles in level: " + this.levels[this.currentLevelIndex].numCollectibles);
 			this.pauseAllAudio();
-			this.totalScore += this.roundScore;
-			this.roundScore = 0;
+			if(this.currentLevel.tutorial != true)
+			{
+				this.totalScore += this.roundScore;
+				this.roundScore = 0;
+			}
 			this.currentState = this.GAME_STATE_ROUND_OVER;
 
 		}
@@ -360,8 +428,9 @@ app.Mortar_Maneuvers = {
 	
 	reset: function() {
 		this.numCollected = 0;
+		//var currentLevel = this.levels[this.currentLevelIndex];
 		// mortar cooldown time reset
-		this.currentCooldown = this.levels[this.currentLevelIndex].cooldown;
+		this.currentCooldown = this.currentLevel.cooldown;
 		//prisoners
 		this.prisoners = [];
 		
@@ -370,7 +439,7 @@ app.Mortar_Maneuvers = {
 			var randomImageIndex = Math.floor(app.utilities.getRandom(0, 4));
 			var randomImage = this.prisonerIMGs[randomImageIndex];
 			//Prisoner(img, x, y, width, height, screenWInfo, screenHInfo chainLength, angle)
-			this.prisoners.push(new app.Prisoner(randomImage, this.hatIMG, this.CANVAS_WIDTH/2 - (i * 10), this.CANVAS_HEIGHT/2 - (i * 10), 40, 20, this.screenWInfo, this.screenHInfo,  this.levels[this.currentLevelIndex].maxDistance, 0));
+			this.prisoners.push(new app.Prisoner(randomImage, this.hatIMG, this.currentLevel.startPos.x - (i * 10), this.currentLevel.startPos.y - (i * 10), 40, 20, this.screenWInfo, this.screenHInfo,  this.levels[this.currentLevelIndex].maxDistance, 0));
 		}
 		
 		//set focus on the first prisoner
@@ -378,18 +447,27 @@ app.Mortar_Maneuvers = {
 		this.currentPrisoner = this.prisoners[this.currentPrisonerIndex];
 		this.currentPrisoner.gainFocus();
 		
-		
-		
 		//explosions
 		this.activeExplosions = [];
 		this.activeMortars = [];
 		
-
+		if(this.currentLevel.tutorialMortarNeeded == true)
+		{
+			this.activeMortars.push(new app.Mortar(this.currentLevel.tutorialMortarPos.x, this.currentLevel.tutorialMortarPos.y, this.mortarSize, this.mortarIMG));
+		}
 		
 		// Collectibles
 		this.collectibles = [];
-		for(var i = 0; i < this.levels[this.currentLevelIndex].numCollectibles; i++) {
-			this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(this.screenWInfo.x+(this.collectibleSize/2), this.screenWInfo.y-(this.collectibleSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.collectibleSize/2), this.screenHInfo.y-(this.collectibleSize/2)), this.collectibleSize));
+		
+		if(this.currentLevel.tutorial != true) //randomly place collectables if not a tutorial
+		{
+			for(var i = 0; i < this.currentLevel.numCollectibles; i++) {
+				this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(this.screenWInfo.x+(this.collectibleSize/2), this.screenWInfo.y-(this.collectibleSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.collectibleSize/2), this.screenHInfo.y-(this.collectibleSize/2)), this.collectibleSize));
+			}
+		}
+		else
+		{
+			this.collectibles.push(new app.Collectible(this.collectableIMG, this.currentLevel.collectablePos.x, this.currentLevel.collectablePos.y, this.collectibleSize));
 		}
 		this.inactiveCollectibles = [];
 		
@@ -412,6 +490,7 @@ app.Mortar_Maneuvers = {
 			this.ctx.textBaseline = "middle";
 			this.drawText("MORTAR MANEUVERS", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/4 + 20, 50, "#E0E900");
 			this.drawText("Click the mouse to begin playing.", this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 30, "#E6E6E6");
+			console.log(this.activeMortars.length);
 			this.ctx.restore();
 		} // end if
 		
@@ -470,7 +549,7 @@ app.Mortar_Maneuvers = {
 					}
 				}
 				for(var k = 0; k < this.activeExplosions.length; k++) {
-					if(app.utilities.collides(this.prisoners[i], this.activeExplosions[k])) {
+					if(app.utilities.collides(this.prisoners[i], this.activeExplosions[k]) && this.currentLevel.tutorial != true) {
 						//collision stuff
 						this.kill();
 					}
@@ -484,6 +563,14 @@ app.Mortar_Maneuvers = {
 						this.activeExplosions.push(this.makeNewExplosion(this.collectibles[j].position));
 						this.collectibles.splice(j, 1);
 						this.collectibles.push(new app.Collectible(this.collectableIMG, app.utilities.getRandom(this.screenWInfo.x+(this.collectibleSize/2), this.screenWInfo.y-(this.collectibleSize/2)), app.utilities.getRandom(this.screenHInfo.x+(this.collectibleSize/2), this.screenHInfo.y-(this.collectibleSize/2)), this.collectibleSize));
+					}
+				}
+				
+				if(this.currentLevel.tutorialPrisoner != undefined)
+				{
+					if(app.utilities.collides(this.activeExplosions[i],this.currentLevel.tutorialPrisoner))
+					{
+						this.currentLevel.tutorialPrisoner.position = new app.Vector(Number.MAX_SAFE_INTEGER,Number.MAX_SAFE_INTEGER);
 					}
 				}
 			}
@@ -550,13 +637,15 @@ app.Mortar_Maneuvers = {
 			return;
 		}
 		if(mm.currentState == mm.GAME_STATE_GAME_OVER) {
-			mm.currentLevelIndex = 1;
+			mm.currentLevelIndex = 3;
+			mm.currentLevel = mm.levels[mm.currentLevelIndex];
 			mm.currentState = mm.GAME_STATE_PLAY;
 			mm.reset();
 			return;
 		}
 		if(mm.currentState == mm.GAME_STATE_ROUND_OVER) {
 			mm.currentLevelIndex++;
+			mm.currentLevel = mm.levels[mm.currentLevelIndex];
 			mm.currentState = mm.GAME_STATE_PLAY;
 			mm.reset();
 			return;
@@ -674,6 +763,10 @@ app.Mortar_Maneuvers = {
 			}
 			
 			this.prisoners[i].draw(this.ctx);
+		}
+		if(this.currentLevel.tutorialPrisoner != null)
+		{
+			this.currentLevel.tutorialPrisoner.draw(this.ctx);
 		}
 		
 		//draw mortars
