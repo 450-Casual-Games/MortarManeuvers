@@ -32,7 +32,7 @@ app.SoundHandler = function() {
 	function SoundHandler() {
 		//Background music
 		this.backgroundMusic = new Audio('audio/background.mp3');// source: freeplaymusic.com
-		this.backgorunsMusic.volume = 0.2;
+		this.backgroundMusic.volume = 0.2;
 		this.backgroundMusic.loop = true;
 	
 		//Pickaxe sound

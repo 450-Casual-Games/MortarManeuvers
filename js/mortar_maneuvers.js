@@ -88,7 +88,6 @@ app.Mortar_Maneuvers = {
 	
     // methods
 	init: function() {
-		console.log("Init called");
 		// declare properties
 		this.canvas = document.querySelector('canvas');
 		this.canvas.width = this.CANVAS_WIDTH;
@@ -650,10 +649,6 @@ app.Mortar_Maneuvers = {
 			mm.reset();
 			return;
 		}
-		
-		
-		//var mouse = getMouse(e);
-		//console.log("(mouse.x, mouse.y)=" + mouse.x + "," + mouse.y);
 	},
 	
 	update: function() {
