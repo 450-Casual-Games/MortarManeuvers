@@ -37,7 +37,11 @@ app.IMAGES = {
 	explosion2: "images/Explosion2.png",
 	explosion3: "images/Explosion3.png",
 	explosion4: "images/Explosion4.png",
-	//instructions: "images/instructions.png",
+	instructionSwap: "images/instructionSwap.png",
+	instructionMove: "images/instructionMove.png",
+	instructionRotate: "images/instructionRotate.png",
+	
+	
 };
 
 
@@ -86,6 +90,9 @@ window.onload = function(){
 		{id: "explosion2", src: "images/Explosion2.png"},
 		{id: "explosion3", src: "images/Explosion3.png"},
 		{id: "explosion4", src: "images/Explosion4.png"},
+		{id: "instructionSwap", src: "images/instructionSwap.png"},
+		{id: "instructionMove", src: "images/instructionMove.png"},
+		{id: "instructionRotate", src: "images/instructionRotate.png"},
 	]);
 	
 	//app.Mortar_Maneuvers.init();

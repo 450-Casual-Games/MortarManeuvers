@@ -102,6 +102,7 @@ app.Mortar_Maneuvers = {
 		
 		this.prisonerIMGs = [];
 		this.explosionIMGs = [];
+		this.instructionIMGs = [];
 		this.loadImages();
 		
 		this.levels = [];
@@ -115,10 +116,8 @@ app.Mortar_Maneuvers = {
 		//sound variables
 		this.soundHandler = new app.SoundHandler();
 		this.soundHandler.backgroundMusicPlay();
-
 		
 		this.currentState = 0;
-		
 		
 		this.reset();
 		
@@ -137,7 +136,11 @@ app.Mortar_Maneuvers = {
 			tutorial: true,
 			startPos: new app.Vector(this.screenWInfo.x + 50, this.screenHInfo.y - 50),
 			collectablePos: new app.Vector(this.screenWInfo.y - 50, this.screenHInfo.x + 50),
-			
+			instructionsIMGS: this.instructionIMGs,
+			instructionsSize: new app.Vector(180, 120),
+			movePos: new app.Vector(this.screenWInfo.x + 120, this.screenHInfo.y / 2 + 20),
+			rotatePos: new app.Vector(this.screenWInfo.y /2, this.screenHInfo.y / 2 + 20),
+			swapPos: new app.Vector(this.screenWInfo.y - 120, this.screenHInfo.y / 2 + 20),
 		}
 		this.levels[1] = {
 			cooldown: Number.MAX_SAFE_INTEGER,
@@ -337,6 +340,18 @@ app.Mortar_Maneuvers = {
 		var e4 = new Image();
 		e4.src = this.app.IMAGES['explosion4'];
 		this.explosionIMGs.push(e4);
+		
+		var i1 = new Image();
+		i1.src = this.app.IMAGES['instructionSwap'];
+		this.instructionIMGs.push(i1);
+		
+		var i2 = new Image();
+		i2.src = this.app.IMAGES['instructionMove'];
+		this.instructionIMGs.push(i2);
+		
+		var i3 = new Image();
+		i3.src = this.app.IMAGES['instructionRotate'];
+		this.instructionIMGs.push(i3);
 	},
 	
 	//handle player-collectable collision
@@ -739,6 +754,14 @@ app.Mortar_Maneuvers = {
 		var backgroundSize = new app.Vector(this.screenWInfo.y - this.screenWInfo.x,this.screenHInfo.y - this.screenHInfo.x);
 		app.drawLib.drawRect(this.ctx, "#997A3D", backgroundPos, backgroundSize);
 		//#005200
+		
+		if(this.currentLevel.instructionsIMGS != null)
+		{
+			var imgs = this.currentLevel.instructionsIMGS;
+			app.drawLib.drawImage(this.ctx, imgs[1], new app.Vector(0,0), new app.Vector(747, 496), this.currentLevel.movePos, this.currentLevel.instructionsSize, 0);
+			app.drawLib.drawImage(this.ctx, imgs[0], new app.Vector(0,0), new app.Vector(747, 496), this.currentLevel.swapPos, this.currentLevel.instructionsSize, 0);
+			app.drawLib.drawImage(this.ctx, imgs[2], new app.Vector(0,0), new app.Vector(747, 496), this.currentLevel.rotatePos, this.currentLevel.instructionsSize, 0);
+		}
 		
 		//draw prisoners
 		for(var i = 0; i < this.prisoners.length; i++) {
