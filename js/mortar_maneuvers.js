@@ -20,7 +20,7 @@ app.Mortar_Maneuvers = {
     CANVAS_HEIGHT: 480,
 	NUM_COLLECTIBLES_LEVEL_ONE: 3,
 	NUM_COLLECTIBLES_LEVEL_TWO: 5,
-	NUM_START_LIVES: 0,
+	NUM_START_LIVES: 5,
 	
 	GAME_STATE_MENU: 0,
 	GAME_STATE_PLAY: 1,
@@ -114,7 +114,7 @@ app.Mortar_Maneuvers = {
 
 		//sound variables
 		this.soundHandler = new app.SoundHandler();
-		//this.soundHandler.themePlay();
+		this.soundHandler.backgroundMusicPlay();
 
 		
 		this.currentState = 0;
@@ -653,7 +653,8 @@ app.Mortar_Maneuvers = {
 		this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
 		var backgroundPos = new app.Vector(this.CANVAS_WIDTH/2,(this.CANVAS_HEIGHT/2) + this.HUDHeight/2);
 		var backgroundSize = new app.Vector(this.screenWInfo.y - this.screenWInfo.x,this.screenHInfo.y - this.screenHInfo.x);
-		app.drawLib.drawRect(this.ctx, "#005200", backgroundPos, backgroundSize);
+		app.drawLib.drawRect(this.ctx, "#997A3D", backgroundPos, backgroundSize);
+		//#005200
 		
 		//draw prisoners
 		for(var i = 0; i < this.prisoners.length; i++) {
@@ -664,13 +665,15 @@ app.Mortar_Maneuvers = {
 				var percentage= distance / this.levels[this.currentLevelIndex].maxDistance;
 				var r = 0;
 				
-				if(percentage > .75)
-				{
+				if(percentage > .5) {
 					r = Math.round(percentage * 255);
+					app.drawLib.drawLine(this.ctx, 'rgb(' +(2*(r-Math.round(0.5*255)))+ ',0,0)', 3, this.prisoners[i].position, this.prisoners[i+1].position);
+				} else {
+					app.drawLib.drawLine(this.ctx, 'rgb(0,0,0)', 3, this.prisoners[i].position, this.prisoners[i+1].position);
 				}
 				
 				//drawLine(ctx, color, weight, pos1, pos2)
-				app.drawLib.drawLine(this.ctx, 'rgb(' +r+ ',0,0)', 3, this.prisoners[i].position, this.prisoners[i+1].position);
+				
 			}
 			
 			this.prisoners[i].draw(this.ctx);
