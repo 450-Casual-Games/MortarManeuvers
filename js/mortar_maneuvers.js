@@ -135,7 +135,7 @@ app.Mortar_Maneuvers = {
 			tutorial: true,
 			startPos: new app.Vector(this.screenWInfo.x + 50, this.screenHInfo.y - 50),
 			collectablePos: new app.Vector(this.screenWInfo.y - 50, this.screenHInfo.x + 50),
-			instructionsIMGS: this.instructionIMGs,
+			instructionsIMGS: [this.instructionIMGs[0],this.instructionIMGs[1],this.instructionIMGs[2]],
 			instructionsSize: new app.Vector(180, 120),
 			movePos: new app.Vector(this.screenWInfo.x + 120, this.screenHInfo.y / 2 + 20),
 			rotatePos: new app.Vector(this.screenWInfo.y /2, this.screenHInfo.y / 2 + 20),
@@ -151,6 +151,10 @@ app.Mortar_Maneuvers = {
 			tutorialPrisoner: new app.Prisoner(this.prisonerIMGs[0], this.hatIMG, this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2, 40, 20, this.screenWInfo, this.screenHInfo, 100, 0),
 			tutorialMortarNeeded: true,
 			tutorialMortarPos: new app.Vector(this.CANVAS_WIDTH/2, this.CANVAS_HEIGHT/2),
+			instructionPos: new app.Vector(this.screenWInfo.y /2 + 35, this.screenHInfo.y / 2),
+			instructionsIMGS: [this.instructionIMGs[3]],
+			instructionsSize: new app.Vector(180, 120),
+			instructionsAngle: 0,
 		}
 		this.levels[2] = {
 			cooldown: Number.MAX_SAFE_INTEGER,
@@ -161,6 +165,10 @@ app.Mortar_Maneuvers = {
 			collectablePos: new app.Vector(this.screenWInfo.y - 50, this.screenHInfo.x + 50),
 			tutorialMortarNeeded: true,
 			tutorialMortarPos: new app.Vector(this.screenWInfo.y - 40, this.screenHInfo.x + 40),
+			instructionPos: new app.Vector(this.screenWInfo.y /2 + 20, this.screenHInfo.y / 2 + 20),
+			instructionsIMGS: [this.instructionIMGs[4]],
+			instructionsSize: new app.Vector(180, 120),
+			instructionsAngle: 0,
 		}
 		this.levels[3] = {
 			cooldown: 3,
@@ -351,6 +359,14 @@ app.Mortar_Maneuvers = {
 		var i3 = new Image();
 		i3.src = this.app.IMAGES['instructionRotate'];
 		this.instructionIMGs.push(i3);
+		
+		var i4 = new Image();
+		i4.src = this.app.IMAGES['instructionPlayer'];
+		this.instructionIMGs.push(i4);
+		
+		var i5 = new Image();
+		i5.src = this.app.IMAGES['instructionPickaxe'];
+		this.instructionIMGs.push(i5);
 	},
 	
 	//handle player-collectable collision
@@ -750,12 +766,20 @@ app.Mortar_Maneuvers = {
 		app.drawLib.drawRect(this.ctx, "#997A3D", backgroundPos, backgroundSize);
 		//#005200
 		
-		if(this.currentLevel.instructionsIMGS != null)
+		if(this.currentLevel.instructionsIMGS != null) //draw the instructions if the level has any
 		{
 			var imgs = this.currentLevel.instructionsIMGS;
-			app.drawLib.drawImage(this.ctx, imgs[1], new app.Vector(0,0), new app.Vector(747, 496), this.currentLevel.movePos, this.currentLevel.instructionsSize, 0);
-			app.drawLib.drawImage(this.ctx, imgs[0], new app.Vector(0,0), new app.Vector(747, 496), this.currentLevel.swapPos, this.currentLevel.instructionsSize, 0);
-			app.drawLib.drawImage(this.ctx, imgs[2], new app.Vector(0,0), new app.Vector(747, 496), this.currentLevel.rotatePos, this.currentLevel.instructionsSize, 0);
+			if(imgs.length > 1){
+				//draw the controls
+				app.drawLib.drawImage(this.ctx, imgs[1], new app.Vector(0,0), new app.Vector(747, 496), this.currentLevel.movePos, this.currentLevel.instructionsSize, 0);
+				app.drawLib.drawImage(this.ctx, imgs[0], new app.Vector(0,0), new app.Vector(747, 496), this.currentLevel.swapPos, this.currentLevel.instructionsSize, 0);
+				app.drawLib.drawImage(this.ctx, imgs[2], new app.Vector(0,0), new app.Vector(747, 496), this.currentLevel.rotatePos, this.currentLevel.instructionsSize, 0);
+			}
+			else
+			{
+				//draw specific instructions
+				app.drawLib.drawImage(this.ctx, imgs[0], new app.Vector(0,0), new app.Vector(747, 496), this.currentLevel.instructionPos, this.currentLevel.instructionsSize, this.currentLevel.instructionsAngle);
+			}
 		}
 		
 		//draw prisoners

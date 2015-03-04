@@ -40,7 +40,8 @@ app.IMAGES = {
 	instructionSwap: "images/instructionSwap.png",
 	instructionMove: "images/instructionMove.png",
 	instructionRotate: "images/instructionRotate.png",
-	
+	instructionPlayer: "images/instructionDie.png",
+	instructionPickaxe: "images/instructionPickaxe.png",
 	
 };
 
@@ -93,6 +94,8 @@ window.onload = function(){
 		{id: "instructionSwap", src: "images/instructionSwap.png"},
 		{id: "instructionMove", src: "images/instructionMove.png"},
 		{id: "instructionRotate", src: "images/instructionRotate.png"},
+		{id: "instructionPlayer", src: "images/instructionDie.png"},
+		{id: "instructionPickaxe", src: "images/instructionPickaxe.png"},
 	]);
 	
 	//app.Mortar_Maneuvers.init();
